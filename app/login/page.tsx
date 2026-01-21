@@ -7,19 +7,31 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 
+import { loginAction } from "@/app/actions/auth";
+
 export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (password === "admin123") { // Mock password
-            // Set cookie manually for demo (in real app use server action or API)
-            document.cookie = "admin_session=true; path=/; max-age=3600";
-            router.push("/admin");
-        } else {
-            setError("Invalid password");
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const result = await loginAction(password);
+
+            if (result.success) {
+                router.push("/admin");
+            } else {
+                setError("Invalid password");
+            }
+        } catch (err) {
+            setError("An error occurred");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -40,13 +52,13 @@ export default function LoginPage() {
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                disabled={isLoading}
                             />
                             {error && <p className="text-sm text-red-500">{error}</p>}
                         </div>
-                        <Button type="submit" className="w-full">Sign In</Button>
-                        <div className="text-xs text-center text-muted-foreground mt-4">
-                            Hint: Password is <strong>admin123</strong>
-                        </div>
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                            {isLoading ? "Signing in..." : "Sign In"}
+                        </Button>
                     </form>
                 </CardContent>
             </Card>
