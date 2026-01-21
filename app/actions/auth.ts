@@ -3,7 +3,13 @@
 import { cookies } from "next/headers";
 
 export async function loginAction(password: string) {
-    const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const correctPassword = process.env.ADMIN_PASSWORD;
+
+    if (!correctPassword) {
+        console.error("ADMIN_PASSWORD environment variable is not set.");
+        return { success: false };
+    }
+
 
     if (password === correctPassword) {
         // In a real app, use a secure session library
