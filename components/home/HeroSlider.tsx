@@ -18,7 +18,7 @@ const slides = [
     {
         id: 2,
         image: "https://images.unsplash.com/photo-1555215696-99ac45e43d34?q=80&w=2670&auto=format&fit=crop",
-        title: "Quality You Can Trust",
+        title: "Quality Cars Trusted Deals",
         subtitle: "Multipoint inspected, transparently priced, and ready for you.",
         cta: "See Specials",
         link: "/inventory"
