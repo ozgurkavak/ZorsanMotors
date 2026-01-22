@@ -8,7 +8,7 @@ export function Navbar() {
             <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
                 <Link href="/" className="flex items-center space-x-2">
                     <Car className="h-6 w-6 text-primary" />
-                    <span className="text-xl font-bold tracking-tight">Zorsan<span className="text-primary">Motors</span></span>
+                    <span className="text-xl font-bold tracking-tight">Zorsan <span className="text-primary">Motors</span></span>
                 </Link>
                 <nav className="hidden md:flex gap-6 text-sm font-medium">
                     <Link href="/inventory" className="transition-colors hover:text-primary">

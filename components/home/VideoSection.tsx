@@ -5,23 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function VideoSection() {
     return (
-        <section className="relative overflow-hidden py-24">
-            {/* Background Video */}
-            <div className="absolute inset-0 z-0">
-                <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="h-full w-full object-cover opacity-30 invert dark:invert-0"
-                    poster="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200"
-                >
-                    <source src="https://videos.pexels.com/video-files/4488796/4488796-hd_1920_1080_25fps.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
-            </div>
-
+        <section className="relative overflow-hidden py-24 bg-muted/20">
             <div className="container relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
                     <div className="space-y-8">
@@ -30,14 +14,15 @@ export function VideoSection() {
                                 Why Choose Zorsan Motors?
                             </h2>
                             <p className="mt-4 text-lg text-muted-foreground w-11/12">
-                                We're not just selling cars; we're upgrading your lifestyle.
-                                Experience a transparent, premium buying process designed around you.
+                                We're not just selling cars; we're building relationships.
+                                Experience a transparent, reliable buying process designed around you.
+                                <span className="block mt-2 font-semibold text-primary">Affordable and reliable.</span>
                             </p>
                         </div>
 
                         <div className="grid gap-6">
                             {[
-                                { title: "150-Point Inspection", desc: "Every vehicle is rigorously tested for safety and performance." },
+                                { title: "Multipoint Inspection", desc: "Every vehicle is rigorously tested for safety and performance." },
                                 { title: "Transparent Pricing", desc: "No hidden fees, no surprises. The price you see is what you pay." },
                                 { title: "7-Day Money Back", desc: "Love it or return it within 7 days. Your satisfaction is guaranteed." },
                             ].map((item, i) => (
@@ -52,21 +37,14 @@ export function VideoSection() {
                                 </div>
                             ))}
                         </div>
-
-                        <Button size="lg" className="mt-4">
-                            <Play className="mr-2 h-4 w-4" /> Watch Our Story
-                        </Button>
                     </div>
 
-                    <div className="relative aspect-video overflow-hidden rounded-2xl border bg-black/50 shadow-2xl transition-transform hover:scale-[1.02]">
-                        {/* Foreground "Player" Mockup */}
-                        <video
-                            controls
+                    <div className="relative aspect-square md:aspect-video overflow-hidden rounded-2xl border shadow-xl">
+                        <img
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1200&auto=format&fit=crop"
+                            alt="Happy car owner"
                             className="h-full w-full object-cover"
-                            poster="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=1200"
-                        >
-                            <source src="https://videos.pexels.com/video-files/8059882/8059882-hd_1920_1080_25fps.mp4" type="video/mp4" />
-                        </video>
+                        />
                     </div>
                 </div>
             </div>

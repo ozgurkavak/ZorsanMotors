@@ -158,12 +158,12 @@ export default function CarfaxReportPage({ params }: CarfaxReportPageProps) {
                                             <span className="text-sm text-slate-500 font-medium">Latest Record</span>
                                         </div>
                                         <h4 className="font-bold text-lg text-slate-800 dark:text-slate-200">Vehicle Offered for Sale</h4>
-                                        <p className="text-sm text-slate-500 font-medium">Zorsan Motors - Brockton, MA</p>
+                                        <p className="text-sm text-slate-500 font-medium">Zorsan Motors</p>
                                         <p className="text-slate-600 dark:text-slate-400 mt-2">
                                             Vehicle inspected, detailed, and listed for sale.
                                         </p>
                                         <div className="flex items-center gap-2 text-green-600 text-sm font-bold mt-3 bg-green-50 dark:bg-green-900/20 inline-flex px-3 py-1 rounded-full">
-                                            <CheckCircle2 className="h-4 w-4" /> Passed 150-Point Inspection
+                                            <CheckCircle2 className="h-4 w-4" /> Passed Multipoint Inspection
                                         </div>
                                     </div>
                                 </div>
@@ -213,7 +213,7 @@ export default function CarfaxReportPage({ params }: CarfaxReportPageProps) {
 
                 <div className="flex justify-center py-6">
                     <p className="text-center text-xs text-slate-400 max-w-lg leading-relaxed">
-                        This report is a simulation generated for demonstration purposes by ZorsanMotors.
+                        This report is a simulation generated for demonstration purposes by Zorsan Motors.
                         It is intended to showcase the functionality of the platform and does not represent real-world
                         data for the vehicle with VIN {vehicle.vin}.
                     </p>

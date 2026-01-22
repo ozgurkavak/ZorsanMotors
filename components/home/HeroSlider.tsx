@@ -11,15 +11,15 @@ const slides = [
         id: 1,
         image: "https://images.unsplash.com/photo-1605893477799-b99e3b8b93fe?auto=format&fit=crop&q=80&w=2070",
         title: "Experience the Extraordinary",
-        subtitle: "Drive home your dream car today with our premium selection of certified vehicles.",
+        subtitle: "Drive home your dream car today. Quality vehicles at prices you can afford.",
         cta: "View Inventory",
         link: "/inventory"
     },
     {
         id: 2,
         image: "https://images.unsplash.com/photo-1555215696-99ac45e43d34?q=80&w=2670&auto=format&fit=crop",
-        title: "Luxury Without Compromise",
-        subtitle: "Meticulously inspected, competitively priced, and ready for the road.",
+        title: "Quality You Can Trust",
+        subtitle: "Multipoint inspected, transparently priced, and ready for you.",
         cta: "See Specials",
         link: "/inventory"
     },
