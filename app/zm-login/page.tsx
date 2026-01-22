@@ -24,7 +24,7 @@ export default function LoginPage() {
             const result = await loginAction(password);
 
             if (result.success) {
-                router.push("/admin");
+                router.push("/zm-console");
             } else {
                 setError("Invalid password");
             }

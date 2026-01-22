@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -23,12 +21,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, CheckCircle2 } from "lucide-react";
-
-// Schema
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter
+} from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
+import { Vehicle } from "@/types";
+import { useVehicles } from "@/lib/vehicle-context";
 import { supabase } from "@/lib/supabase";
 
-// Schema
 const vehicleSchema = z.object({
     make: z.string().min(2, "Make is required"),
     model: z.string().min(2, "Model is required"),
@@ -37,20 +42,20 @@ const vehicleSchema = z.object({
     vin: z.string().min(17, "VIN must be 17 characters").max(17),
     mileage: z.string().min(1, "Mileage is required"),
     status: z.enum(["Available", "Sold", "Reserved"]),
-    image: z.any().refine((file) => file instanceof File, "Image is required"),
+    image: z.any().optional(),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
 
-import { useVehicles } from "@/lib/vehicle-context"; // Import hook
-import { Vehicle } from "@/types"; // Import type
+interface EditVehicleDialogProps {
+    vehicle: Vehicle | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
 
-// ... imports
-
-export function AddVehicleForm() {
-    const { addVehicle } = useVehicles(); // Use hook
+export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDialogProps) {
+    const { updateVehicle } = useVehicles();
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
 
     const form = useForm<VehicleFormValues>({
@@ -66,6 +71,21 @@ export function AddVehicleForm() {
         },
     });
 
+    useEffect(() => {
+        if (vehicle && open) {
+            form.reset({
+                make: vehicle.make,
+                model: vehicle.model,
+                year: vehicle.year.toString(),
+                price: vehicle.price.toString(),
+                vin: vehicle.vin,
+                mileage: vehicle.mileage.toString(),
+                status: (vehicle.status as "Available" | "Sold" | "Reserved") || "Available",
+            });
+            setPreview(vehicle.image);
+        }
+    }, [vehicle, open, form]);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -76,81 +96,63 @@ export function AddVehicleForm() {
     };
 
     const onSubmit = async (data: VehicleFormValues) => {
+        if (!vehicle) return;
         setLoading(true);
 
         try {
-            const imageFile = data.image as File;
-            const fileExt = imageFile.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+            let imageUrl = vehicle.image;
 
-            // 1. Upload Image
-            const { error: uploadError } = await supabase.storage
-                .from('vehicle-images')
-                .upload(fileName, imageFile);
+            // Handle Image Upload if changed
+            if (data.image instanceof File) {
+                const imageFile = data.image;
+                const fileExt = imageFile.name.split('.').pop();
+                const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
-            if (uploadError) {
-                throw new Error("Image upload failed: " + uploadError.message);
+                const { error: uploadError } = await supabase.storage
+                    .from('vehicle-images')
+                    .upload(fileName, imageFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('vehicle-images')
+                    .getPublicUrl(fileName);
+
+                imageUrl = publicUrlData.publicUrl;
             }
 
-            // 2. Get Public URL
-            const { data: publicUrlData } = supabase.storage
-                .from('vehicle-images')
-                .getPublicUrl(fileName);
-
-            const imageUrl = publicUrlData.publicUrl;
-
-            // 3. Create new vehicle object
-            const newVehicle: Vehicle = {
-                id: "temp-id", // Will be replaced by DB ID
+            const updates: Partial<Vehicle> = {
                 make: data.make,
                 model: data.model,
                 year: parseInt(data.year),
                 price: parseInt(data.price),
                 mileage: parseInt(data.mileage),
                 vin: data.vin,
-                condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
-                bodyType: "Sedan", // Default for now
-                fuelType: "Gasoline",
-                transmission: "Automatic",
-                exteriorColor: "Black",
-                interiorColor: "Black",
+                status: data.status,
                 image: imageUrl,
-                features: [],
-                carfaxUrl: "#",
-                status: data.status
+                condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
             };
 
-            await addVehicle(newVehicle); // Update global state & DB
-
-            setSuccess(true);
-            setTimeout(() => {
-                setSuccess(false);
-                form.reset();
-                setPreview(null);
-            }, 3000);
-
+            await updateVehicle(vehicle.id, updates);
+            onOpenChange(false);
         } catch (error) {
-            console.error("Submission error:", error);
-            alert("Failed to add vehicle. Please try again.");
+            console.error("Update error:", error);
+            alert("Failed to update vehicle.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="bg-card rounded-xl border shadow-sm p-6 max-w-2xl">
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold">Add New Vehicle</h2>
-                <p className="text-sm text-muted-foreground">Enter the details of the new vehicle to add to inventory.</p>
-            </div>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Vehicle</DialogTitle>
+                    <DialogDescription>
+                        Update vehicle details. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
 
-            {success ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center text-green-600 animate-in fade-in">
-                    <CheckCircle2 className="h-16 w-16 mb-4" />
-                    <h3 className="text-2xl font-bold">Success!</h3>
-                    <p className="text-muted-foreground">Vehicle has been added to the inventory system.</p>
-                </div>
-            ) : (
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
@@ -160,9 +162,7 @@ export function AddVehicleForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Make</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. Ford" {...field} />
-                                        </FormControl>
+                                        <FormControl><Input {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -173,9 +173,7 @@ export function AddVehicleForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Model</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. F-150 Lariat" {...field} />
-                                        </FormControl>
+                                        <FormControl><Input {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -189,9 +187,7 @@ export function AddVehicleForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Year</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="2024" type="number" {...field} />
-                                        </FormControl>
+                                        <FormControl><Input type="number" {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -227,9 +223,7 @@ export function AddVehicleForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Price ($)</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="45000" type="number" {...field} />
-                                        </FormControl>
+                                        <FormControl><Input type="number" {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -240,9 +234,7 @@ export function AddVehicleForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Mileage</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="25000" type="number" {...field} />
-                                        </FormControl>
+                                        <FormControl><Input type="number" {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -255,9 +247,7 @@ export function AddVehicleForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>VIN</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="1FTEW1E50KFA..." {...field} className="font-mono uppercase" maxLength={17} />
-                                    </FormControl>
+                                    <FormControl><Input {...field} className="font-mono uppercase" maxLength={17} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -280,27 +270,20 @@ export function AddVehicleForm() {
                                     </div>
                                 )}
                             </div>
-                            <FormDescription>Upload a high-quality main image for the vehicle.</FormDescription>
                         </div>
 
-                        <div className="pt-4">
-                            <Button type="submit" className="w-full" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding Vehicle...
-                                    </>
-                                ) : (
-                                    <>
-                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Vehicle
-                                    </>
-                                )}
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                                Cancel
                             </Button>
-                        </div>
+                            <Button type="submit" disabled={loading}>
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Changes
+                            </Button>
+                        </DialogFooter>
                     </form>
                 </Form>
-            )}
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }
-
-import { PlusCircle } from "lucide-react";

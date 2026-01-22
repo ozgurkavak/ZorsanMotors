@@ -1,11 +1,24 @@
+"use client";
+
 import { AddVehicleForm } from "@/components/admin/AddVehicleForm";
 import { InventoryTable } from "@/components/admin/InventoryTable";
-import { DollarSign, Car, Users, Activity } from "lucide-react";
+import { DollarSign, Car, CreditCard, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useVehicles } from "@/lib/vehicle-context";
 
 export default function AdminDashboard() {
+    const { vehicles } = useVehicles();
+
+    // Calculate Dynamic Stats
+    const activeVehicles = vehicles.filter(v => !v.status || v.status === 'Available');
+    const soldVehicles = vehicles.filter(v => v.status === 'Sold');
+    const reservedVehicles = vehicles.filter(v => v.status === 'Reserved');
+
+    const totalRevenue = soldVehicles.reduce((sum, v) => sum + v.price, 0);
+    const inventoryValue = activeVehicles.reduce((sum, v) => sum + v.price, 0);
+
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                 <div className="text-sm text-muted-foreground">Admin / Overview</div>
@@ -19,8 +32,8 @@ export default function AdminDashboard() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$1,234,560</div>
-                        <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                        <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground">From {soldVehicles.length} sold vehicles</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -29,28 +42,28 @@ export default function AdminDashboard() {
                         <Car className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">142</div>
-                        <p className="text-xs text-muted-foreground">+12 since last week</p>
+                        <div className="text-2xl font-bold">{activeVehicles.length}</div>
+                        <p className="text-xs text-muted-foreground">Vehicles available for sale</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Leads</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Inventory Asset Value</CardTitle>
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">573</div>
-                        <p className="text-xs text-muted-foreground">+201 since last hour</p>
+                        <div className="text-2xl font-bold">${inventoryValue.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground">Total value of active stock</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Sales Rate</CardTitle>
-                        <Activity className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Reserved Vehicles</CardTitle>
+                        <Tag className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12.5%</div>
-                        <p className="text-xs text-muted-foreground">+4% from last week</p>
+                        <div className="text-2xl font-bold">{reservedVehicles.length}</div>
+                        <p className="text-xs text-muted-foreground">Currently pending sale</p>
                     </CardContent>
                 </Card>
             </div>
@@ -63,7 +76,7 @@ export default function AdminDashboard() {
 
                 {/* Inventory List Area */}
                 <div className="xl:col-span-2">
-                    <InventoryTable />
+                    <InventoryTable limit={5} />
                 </div>
             </div>
         </div>

@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 
 const menuItems = [
-    { title: "Dashboard", icon: LayoutDashboard, href: "/admin" },
-    { title: "Inventory", icon: Car, href: "/admin" }, // Merged for demo
-    { title: "Settings", icon: Settings, href: "/admin/settings" },
+    { title: "Dashboard", icon: LayoutDashboard, href: "/zm-console" },
+    { title: "Inventory", icon: Car, href: "/zm-console/inventory" },
+    { title: "Settings", icon: Settings, href: "/zm-console/settings" },
 ];
 
 export function AdminSidebar() {

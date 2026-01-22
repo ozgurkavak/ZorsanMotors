@@ -3,15 +3,15 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
     // Check for admin path
-    if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (request.nextUrl.pathname.startsWith('/zm-console')) {
         const adminSession = request.cookies.get('admin_session')
 
         if (!adminSession) {
-            return NextResponse.redirect(new URL('/login', request.url))
+            return NextResponse.redirect(new URL('/zm-login', request.url))
         }
     }
 }
 
 export const config = {
-    matcher: '/admin/:path*',
+    matcher: '/zm-console/:path*',
 }

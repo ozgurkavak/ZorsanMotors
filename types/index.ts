@@ -15,6 +15,7 @@ export interface Vehicle {
   interiorColor: string;
   features?: string[];
   carfaxUrl?: string;
+  status?: string; // Added to match DB
 }
 
 export interface FinancingLead {

@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { cookies } from "next/headers";
+import { LayoutDashboard } from "lucide-react";
 
+export async function Navbar() {
+    const cookieStore = await cookies();
+    const isAdmin = cookieStore.get("admin_session")?.value === "true";
 
-export function Navbar() {
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
             <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -25,6 +29,13 @@ export function Navbar() {
                     </Link>
                 </nav>
                 <div className="flex items-center gap-4">
+                    {isAdmin && (
+                        <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground hidden sm:flex" asChild>
+                            <Link href="/zm-console">
+                                <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                            </Link>
+                        </Button>
+                    )}
                     <Button size="sm" asChild>
                         <Link href="/inventory">Browse Cars</Link>
                     </Button>

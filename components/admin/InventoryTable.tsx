@@ -12,22 +12,78 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2 } from "lucide-react";
+import { useState } from "react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
-export function InventoryTable() {
-    const { vehicles } = useVehicles();
-    // Show only first 8 for dashboard
-    const recentVehicles = vehicles.slice(0, 8);
+import { EditVehicleDialog } from "./EditVehicleDialog";
+import { Vehicle } from "@/types";
+
+export function InventoryTable({ limit }: { limit?: number }) {
+    const { vehicles, deleteVehicle, updateVehicle } = useVehicles();
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+
+    // Filter or Limit
+    const displayedVehicles = limit ? vehicles.slice(0, limit) : vehicles;
+
+    const handleDelete = async () => {
+        if (deleteId) {
+            await deleteVehicle(deleteId);
+            setDeleteId(null);
+        }
+    };
+
+    const handleStatusChange = async (id: string, newStatus: string) => {
+        await updateVehicle(id, { status: newStatus });
+    };
+
+    const getStatusColor = (status?: string) => {
+        switch (status) {
+            case 'Available': return 'default'; // Black/Primary
+            case 'Reserved': return 'warning'; // Orange/Yellow (Need a variant, usually secondary or outline works)
+            case 'Sold': return 'destructive'; // Red
+            default: return 'secondary';
+        }
+    };
 
     return (
         <div className="rounded-xl border bg-card shadow-sm">
-            <div className="p-6 border-b">
-                <h3 className="text-lg font-semibold">Recent Inventory</h3>
-                <p className="text-sm text-muted-foreground">Manage your vehicle listings.</p>
+            <div className="p-6 border-b flex justify-between items-center">
+                <div>
+                    <h3 className="text-lg font-semibold">{limit ? "Recent Listings" : "Inventory Management"}</h3>
+                    <p className="text-sm text-muted-foreground">{limit ? "Latest additions to your fleet." : "Manage all vehicles."}</p>
+                </div>
+                {!limit && (
+                    <div className="flex gap-2">
+                        {/* Placeholders for future view toggles */}
+                        <Button variant="outline" size="sm">List View</Button>
+                        <Button variant="ghost" size="sm" className="opacity-50 cursor-not-allowed">Grid View</Button>
+                    </div>
+                )}
             </div>
             <div className="relative w-full overflow-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            {!limit && <TableHead>Image</TableHead>}
                             <TableHead>Vehicle</TableHead>
                             <TableHead>VIN</TableHead>
                             <TableHead>Price</TableHead>
@@ -36,33 +92,93 @@ export function InventoryTable() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {recentVehicles.map((vehicle) => (
-                            <TableRow key={vehicle.id}>
-                                <TableCell className="font-medium">
-                                    {vehicle.year} {vehicle.make} {vehicle.model}
-                                </TableCell>
-                                <TableCell className="font-mono text-xs">{vehicle.vin}</TableCell>
-                                <TableCell>${vehicle.price.toLocaleString()}</TableCell>
-                                <TableCell>
-                                    <Badge variant={vehicle.condition === 'Certified Pre-Owned' ? 'default' : 'secondary'}>
-                                        {vehicle.condition === 'Certified Pre-Owned' ? 'Available' : 'Sold'}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <Edit2 className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                        {displayedVehicles.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={limit ? 5 : 6} className="h-24 text-center">
+                                    No vehicles found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            displayedVehicles.map((vehicle) => (
+                                <TableRow key={vehicle.id}>
+                                    {!limit && (
+                                        <TableCell>
+                                            <div className="h-16 w-24 rounded overflow-hidden">
+                                                <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover" />
+                                            </div>
+                                        </TableCell>
+                                    )}
+                                    <TableCell className="font-medium">
+                                        {vehicle.year} {vehicle.make} {vehicle.model}
+                                    </TableCell>
+                                    <TableCell className="font-mono text-xs">{vehicle.vin}</TableCell>
+                                    <TableCell>${vehicle.price.toLocaleString()}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={vehicle.status === 'Available' ? 'default' : vehicle.status === 'Sold' ? 'destructive' : 'secondary'}>
+                                            {vehicle.status || 'Available'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(vehicle.id)}>
+                                                    Copy ID
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => setEditingVehicle(vehicle)}>
+                                                    Edit Details
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Available')}>
+                                                    Mark as Available
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Reserved')}>
+                                                    Mark as Reserved
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Sold')}>
+                                                    Mark as Sold
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
+                                                    Delete Vehicle
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </div>
+
+            <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the vehicle from the database.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <EditVehicleDialog
+                vehicle={editingVehicle}
+                open={!!editingVehicle}
+                onOpenChange={(open) => !open && setEditingVehicle(null)}
+            />
         </div>
     );
 }
