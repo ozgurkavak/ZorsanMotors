@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Gauge, Fuel, Zap, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Calendar, Gauge, Fuel, Zap, CheckCircle2, ArrowLeft, CarFront } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { use } from "react";
+import { use, useState } from "react";
 
 interface CarPageProps {
     params: Promise<{ id: string }>;
@@ -20,11 +20,16 @@ export default function CarPage({ params }: CarPageProps) {
     const { vehicles } = useVehicles();
     const vehicle = vehicles.find((v) => v.id === id);
 
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
     if (!vehicle) {
         return <div className="p-8 text-center text-red-500">Vehicle not found (might be loading or persisted data issue).</div>;
     }
 
     const montlyPayment = Math.round(vehicle.price / 72);
+
+    const images = (vehicle.images && vehicle.images.length > 0) ? vehicle.images : [vehicle.image];
+    const activeImage = images[activeImageIndex] || vehicle.image;
 
     // Dynamic carfax link generator
     const getCarfaxLink = (v: typeof vehicle) => {
@@ -43,7 +48,7 @@ export default function CarPage({ params }: CarPageProps) {
                 <div className="space-y-4">
                     <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
                         <Image
-                            src={vehicle.image}
+                            src={activeImage}
                             alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                             fill
                             className="object-cover"
@@ -51,11 +56,14 @@ export default function CarPage({ params }: CarPageProps) {
                         />
                     </div>
                     <div className="grid grid-cols-4 gap-2">
-                        {/* Placeholder for thumbnails since we only have one image per vehicle for now */}
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="relative aspect-video overflow-hidden rounded-lg border bg-muted opacity-50 hover:opacity-100 cursor-pointer">
+                        {images.map((img, i) => (
+                            <div
+                                key={i}
+                                className={`relative aspect-video overflow-hidden rounded-lg border bg-muted cursor-pointer transition-all ${activeImageIndex === i ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'}`}
+                                onClick={() => setActiveImageIndex(i)}
+                            >
                                 <Image
-                                    src={vehicle.image}
+                                    src={img}
                                     alt="Thumbnail"
                                     fill
                                     className="object-cover"
@@ -70,6 +78,7 @@ export default function CarPage({ params }: CarPageProps) {
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline">{vehicle.condition}</Badge>
+                            <Badge variant="secondary">{vehicle.status || "Available"}</Badge>
                         </div>
                         <h1 className="text-3xl font-bold">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
                         <p className="text-xl text-primary font-bold mt-2">${vehicle.price.toLocaleString()}</p>
@@ -93,10 +102,10 @@ export default function CarPage({ params }: CarPageProps) {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                            <Fuel className="h-5 w-5 text-primary" />
+                            <CarFront className="h-5 w-5 text-primary" />
                             <div>
-                                <p className="text-xs text-muted-foreground">Fuel Type</p>
-                                <p className="font-medium">{vehicle.fuelType}</p>
+                                <p className="text-xs text-muted-foreground">Body Style</p>
+                                <p className="font-medium">{vehicle.bodyType || "N/A"}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">

@@ -42,6 +42,7 @@ const vehicleSchema = z.object({
     vin: z.string().min(17, "VIN must be 17 characters").max(17),
     mileage: z.string().min(1, "Mileage is required"),
     status: z.enum(["Available", "Sold", "Reserved"]),
+    bodyType: z.enum(["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"]).optional(),
     image: z.any().optional(),
 });
 
@@ -81,6 +82,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 vin: vehicle.vin,
                 mileage: vehicle.mileage.toString(),
                 status: (vehicle.status as "Available" | "Sold" | "Reserved") || "Available",
+                bodyType: vehicle.bodyType as any,
             });
             setPreview(vehicle.image);
         }
@@ -129,6 +131,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 mileage: parseInt(data.mileage),
                 vin: data.vin,
                 status: data.status,
+                bodyType: data.bodyType,
                 image: imageUrl,
                 condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
             };
@@ -194,6 +197,31 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                             />
                             <FormField
                                 control={form.control}
+                                name="bodyType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Body Style</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Body Style" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"].map((type) => (
+                                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
                                 name="status"
                                 render={({ field }) => (
                                     <FormItem>
@@ -214,9 +242,6 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                     </FormItem>
                                 )}
                             />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="price"
@@ -228,6 +253,9 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                     </FormItem>
                                 )}
                             />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="mileage"
@@ -239,19 +267,18 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="vin"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>VIN</FormLabel>
+                                        <FormControl><Input {...field} className="font-mono uppercase" maxLength={17} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-
-                        <FormField
-                            control={form.control}
-                            name="vin"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>VIN</FormLabel>
-                                    <FormControl><Input {...field} className="font-mono uppercase" maxLength={17} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
                         <div className="space-y-2">
                             <FormLabel>Vehicle Image</FormLabel>

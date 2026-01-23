@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Form,
     FormControl,
@@ -23,12 +22,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, CheckCircle2 } from "lucide-react";
-
-// Schema
+import { Loader2, PlusCircle, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useVehicles } from "@/lib/vehicle-context";
+import { Vehicle } from "@/types";
 
-// Schema
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 const vehicleSchema = z.object({
     make: z.string().min(2, "Make is required"),
     model: z.string().min(2, "Model is required"),
@@ -37,21 +38,19 @@ const vehicleSchema = z.object({
     vin: z.string().min(17, "VIN must be 17 characters").max(17),
     mileage: z.string().min(1, "Mileage is required"),
     status: z.enum(["Available", "Sold", "Reserved"]),
-    image: z.any().refine((file) => file instanceof File, "Image is required"),
+    bodyType: z.enum(["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"]),
+    images: z.any()
+        .refine((files) => files?.length > 0, "At least one image is required.")
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
 
-import { useVehicles } from "@/lib/vehicle-context"; // Import hook
-import { Vehicle } from "@/types"; // Import type
-
-// ... imports
-
 export function AddVehicleForm() {
-    const { addVehicle } = useVehicles(); // Use hook
+    const { addVehicle } = useVehicles();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [preview, setPreview] = useState<string | null>(null);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
     const form = useForm<VehicleFormValues>({
         resolver: zodResolver(vehicleSchema),
@@ -63,45 +62,64 @@ export function AddVehicleForm() {
             vin: "",
             mileage: "",
             status: "Available",
+            bodyType: "Sedan"
         },
     });
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setPreview(url);
-            form.setValue("image", file, { shouldValidate: true });
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            const newFiles = Array.from(files);
+
+            // Generate previews
+            const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+            setPreviews(prev => [...prev, ...newPreviews]);
+            setSelectedFiles(prev => [...prev, ...newFiles]);
+
+            // Update form
+            form.setValue("images", [...selectedFiles, ...newFiles], { shouldValidate: true });
         }
+    };
+
+    const removeImage = (index: number) => {
+        const newPreviews = [...previews];
+        URL.revokeObjectURL(newPreviews[index]); // Cleanup
+        newPreviews.splice(index, 1);
+        setPreviews(newPreviews);
+
+        const newFiles = [...selectedFiles];
+        newFiles.splice(index, 1);
+        setSelectedFiles(newFiles);
+        form.setValue("images", newFiles, { shouldValidate: true });
     };
 
     const onSubmit = async (data: VehicleFormValues) => {
         setLoading(true);
 
         try {
-            const imageFile = data.image as File;
-            const fileExt = imageFile.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+            const imageUrls: string[] = [];
 
-            // 1. Upload Image
-            const { error: uploadError } = await supabase.storage
-                .from('vehicle-images')
-                .upload(fileName, imageFile);
+            // Upload all images
+            for (const file of selectedFiles) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
-            if (uploadError) {
-                throw new Error("Image upload failed: " + uploadError.message);
+                const { error: uploadError } = await supabase.storage
+                    .from('vehicle-images')
+                    .upload(fileName, file);
+
+                if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('vehicle-images')
+                    .getPublicUrl(fileName);
+
+                imageUrls.push(publicUrlData.publicUrl);
             }
 
-            // 2. Get Public URL
-            const { data: publicUrlData } = supabase.storage
-                .from('vehicle-images')
-                .getPublicUrl(fileName);
-
-            const imageUrl = publicUrlData.publicUrl;
-
-            // 3. Create new vehicle object
+            // Create new vehicle object
             const newVehicle: Vehicle = {
-                id: "temp-id", // Will be replaced by DB ID
+                id: "temp-id",
                 make: data.make,
                 model: data.model,
                 year: parseInt(data.year),
@@ -109,24 +127,29 @@ export function AddVehicleForm() {
                 mileage: parseInt(data.mileage),
                 vin: data.vin,
                 condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
-                bodyType: "Sedan", // Default for now
-                fuelType: "Gasoline",
+                bodyType: data.bodyType,
+                fuelType: "Gasoline", // Could add select for this too later
                 transmission: "Automatic",
                 exteriorColor: "Black",
                 interiorColor: "Black",
-                image: imageUrl,
+                image: imageUrls.length > 0 ? imageUrls[0] : "", // Primary
+                images: imageUrls, // All images
                 features: [],
                 carfaxUrl: "#",
                 status: data.status
             };
 
-            await addVehicle(newVehicle); // Update global state & DB
+            await addVehicle(newVehicle);
 
             setSuccess(true);
+
+            // Cleanup and Reset
+            previews.forEach(url => URL.revokeObjectURL(url));
             setTimeout(() => {
                 setSuccess(false);
                 form.reset();
-                setPreview(null);
+                setPreviews([]);
+                setSelectedFiles([]);
             }, 3000);
 
         } catch (error) {
@@ -198,20 +221,20 @@ export function AddVehicleForm() {
                             />
                             <FormField
                                 control={form.control}
-                                name="status"
+                                name="bodyType"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Status</FormLabel>
+                                        <FormLabel>Body Style</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select status" />
+                                                    <SelectValue placeholder="Select Body Style" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="Available">Available</SelectItem>
-                                                <SelectItem value="Reserved">Reserved</SelectItem>
-                                                <SelectItem value="Sold">Sold</SelectItem>
+                                                {["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"].map((type) => (
+                                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -249,38 +272,70 @@ export function AddVehicleForm() {
                             />
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="vin"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>VIN</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="1FTEW1E50KFA..." {...field} className="font-mono uppercase" maxLength={17} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="status"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Status</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select status" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Available">Available</SelectItem>
+                                                <SelectItem value="Reserved">Reserved</SelectItem>
+                                                <SelectItem value="Sold">Sold</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="vin"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>VIN</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="1FTEW1E50KFA..." {...field} className="font-mono uppercase" maxLength={17} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
                         <div className="space-y-2">
-                            <FormLabel>Vehicle Image</FormLabel>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1">
-                                    <Input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="cursor-pointer"
-                                    />
+                            <FormLabel>Vehicle Images</FormLabel>
+                            <div className="flex flex-col gap-4">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageChange}
+                                    className="cursor-pointer"
+                                />
+                                <div className="grid grid-cols-4 gap-4">
+                                    {previews.map((url, index) => (
+                                        <div key={index} className="relative aspect-video rounded-md overflow-hidden border">
+                                            <img src={url} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
-                                {preview && (
-                                    <div className="h-16 w-24 shrink-0 overflow-hidden rounded-md border">
-                                        <img src={preview} alt="Preview" className="h-full w-full object-cover" />
-                                    </div>
-                                )}
                             </div>
-                            <FormDescription>Upload a high-quality main image for the vehicle.</FormDescription>
+                            <FormDescription>Upload one or more images. The first image will be the primary cover.</FormDescription>
                         </div>
 
                         <div className="pt-4">
@@ -302,5 +357,3 @@ export function AddVehicleForm() {
         </div>
     );
 }
-
-import { PlusCircle } from "lucide-react";

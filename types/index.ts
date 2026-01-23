@@ -16,6 +16,7 @@ export interface Vehicle {
   features?: string[];
   carfaxUrl?: string;
   status?: string; // Added to match DB
+  images?: string[];
 }
 
 export interface FinancingLead {

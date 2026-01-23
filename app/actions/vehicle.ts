@@ -62,6 +62,7 @@ export async function updateVehicleAction(id: string, updates: Partial<Vehicle>)
     if (updates.fuelType) dbUpdates.fuel_type = updates.fuelType;
     if (updates.exteriorColor) dbUpdates.exterior_color = updates.exteriorColor;
     if (updates.interiorColor) dbUpdates.interior_color = updates.interiorColor;
+    if (updates.images) dbUpdates.images = updates.images;
     // Add others as needed
 
     const { error } = await supabaseAdmin
