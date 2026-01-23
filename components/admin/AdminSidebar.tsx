@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { logoutAction } from "@/app/actions/auth";
 import {
     LayoutDashboard,
     Car,
@@ -19,6 +20,12 @@ const menuItems = [
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logoutAction();
+        router.push("/");
+    };
 
     return (
         <div className="flex w-64 flex-col border-r bg-card min-h-screen">
@@ -41,7 +48,7 @@ export function AdminSidebar() {
                 ))}
             </div>
             <div className="border-t p-4">
-                <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 cursor-pointer">
+                <div onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 cursor-pointer">
                     <LogOut className="h-4 w-4" />
                     Sign Out
                 </div>

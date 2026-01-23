@@ -24,3 +24,7 @@ export async function loginAction(password: string) {
 
     return { success: false };
 }
+export async function logoutAction() {
+    (await cookies()).delete("admin_session");
+    return { success: true };
+}
