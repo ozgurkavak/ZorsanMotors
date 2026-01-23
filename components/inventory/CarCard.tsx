@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Fuel, Gauge, Calendar, Zap, CreditCard } from "lucide-react";
+import { Fuel, Gauge, Calendar, Zap, CreditCard, CarFront } from "lucide-react";
 
 interface CarCardProps {
     vehicle: Vehicle;
@@ -48,8 +48,8 @@ export function CarCard({ vehicle }: CarCardProps) {
                 <Separator className="mb-4" />
                 <div className="grid grid-cols-2 gap-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span>{vehicle.year}</span>
+                        <CarFront className="h-4 w-4 text-primary" />
+                        <span>{vehicle.bodyType || "Car"}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Gauge className="h-4 w-4 text-primary" />

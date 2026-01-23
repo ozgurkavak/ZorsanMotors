@@ -27,7 +27,7 @@ function InventoryContent() {
     });
 
     const uniqueMakes = Array.from(new Set(vehicles.map((v) => v.make))).sort();
-    const uniqueBodyTypes = Array.from(new Set(vehicles.map((v) => v.bodyType))).sort();
+    const uniqueBodyTypes = Array.from(new Set(vehicles.map((v) => v.bodyType).filter(Boolean) as string[])).sort();
 
     return (
         <div className="container max-w-[1600px] mx-auto py-8 px-4 sm:px-6 lg:px-8">
