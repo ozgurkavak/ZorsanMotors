@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { Vehicle } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,16 +13,18 @@ interface CarCardProps {
 }
 
 export function CarCard({ vehicle }: CarCardProps) {
+    const [imgError, setImgError] = useState(false);
     const montlyPayment = Math.round(vehicle.price / 72);
 
     return (
         <Card className="group overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
             <div className="relative aspect-[16/9] overflow-hidden">
                 <Image
-                    src={vehicle.image}
+                    src={(!imgError && vehicle.image) ? vehicle.image : "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=800"}
                     alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={() => setImgError(true)}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-2 right-2">
