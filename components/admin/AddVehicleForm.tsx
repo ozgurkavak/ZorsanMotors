@@ -26,6 +26,7 @@ import { Loader2, PlusCircle, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useVehicles } from "@/lib/vehicle-context";
 import { Vehicle } from "@/types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -39,11 +40,20 @@ const vehicleSchema = z.object({
     mileage: z.string().min(1, "Mileage is required"),
     status: z.enum(["Available", "Sold", "Reserved"]),
     bodyType: z.enum(["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"]),
+    transmission: z.enum(["Automatic", "Manual", "CVT", "DCT"]),
+    features: z.array(z.string()).optional(),
     images: z.any()
         .refine((files) => files?.length > 0, "At least one image is required.")
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
+
+const featuresList = [
+    "Bluetooth", "Backup Camera", "Heated Seats", "Navigation",
+    "Apple CarPlay", "Android Auto", "Lane Assist", "Blind Spot Monitor",
+    "Sunroof", "Leather Seats", "Third Row Seating", "Keyless Entry",
+    "Remote Start", "Premium Sound", "Adaptive Cruise Control"
+];
 
 export function AddVehicleForm() {
     const { addVehicle } = useVehicles();
@@ -62,7 +72,9 @@ export function AddVehicleForm() {
             vin: "",
             mileage: "",
             status: "Available",
-            bodyType: "Sedan"
+            bodyType: "Sedan",
+            transmission: "Automatic",
+            features: [],
         },
     });
 
@@ -129,12 +141,12 @@ export function AddVehicleForm() {
                 condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
                 bodyType: data.bodyType,
                 fuelType: "Gasoline", // Could add select for this too later
-                transmission: "Automatic",
+                transmission: data.transmission,
                 exteriorColor: "Black",
                 interiorColor: "Black",
                 image: imageUrls.length > 0 ? imageUrls[0] : "", // Primary
                 images: imageUrls, // All images
-                features: [],
+                features: data.features || [],
                 carfaxUrl: "#",
                 status: data.status
             };
@@ -161,12 +173,7 @@ export function AddVehicleForm() {
     };
 
     return (
-        <div className="bg-card rounded-xl border shadow-sm p-6 max-w-2xl">
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold">Add New Vehicle</h2>
-                <p className="text-sm text-muted-foreground">Enter the details of the new vehicle to add to inventory.</p>
-            </div>
-
+        <>
             {success ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center text-green-600 animate-in fade-in">
                     <CheckCircle2 className="h-16 w-16 mb-4" />
@@ -205,7 +212,7 @@ export function AddVehicleForm() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField
                                 control={form.control}
                                 name="year"
@@ -241,9 +248,31 @@ export function AddVehicleForm() {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="transmission"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Transmission</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {["Automatic", "Manual", "CVT", "DCT"].map((t) => (
+                                                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField
                                 control={form.control}
                                 name="price"
@@ -270,9 +299,6 @@ export function AddVehicleForm() {
                                     </FormItem>
                                 )}
                             />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="status"
@@ -295,15 +321,64 @@ export function AddVehicleForm() {
                                     </FormItem>
                                 )}
                             />
+                        </div>
+
+                        <FormField
+                            control={form.control}
+                            name="vin"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>VIN</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="1FTEW1E50KFA..." {...field} className="font-mono uppercase" maxLength={17} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="space-y-3">
+                            <FormLabel>Vehicle Features</FormLabel>
                             <FormField
                                 control={form.control}
-                                name="vin"
-                                render={({ field }) => (
+                                name="features"
+                                render={() => (
                                     <FormItem>
-                                        <FormLabel>VIN</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="1FTEW1E50KFA..." {...field} className="font-mono uppercase" maxLength={17} />
-                                        </FormControl>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                            {featuresList.map((feature) => (
+                                                <FormField
+                                                    key={feature}
+                                                    control={form.control}
+                                                    name="features"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={feature}
+                                                                className="flex flex-row items-center space-x-2 space-y-0 p-2 rounded-md border bg-muted/20"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(feature)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            return checked
+                                                                                ? field.onChange([...(field.value || []), feature])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== feature
+                                                                                    )
+                                                                                )
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="text-xs font-normal cursor-pointer flex-1">
+                                                                    {feature}
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -354,6 +429,6 @@ export function AddVehicleForm() {
                     </form>
                 </Form>
             )}
-        </div>
+        </>
     );
 }

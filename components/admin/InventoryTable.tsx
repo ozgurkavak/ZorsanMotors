@@ -36,13 +36,25 @@ import { MoreHorizontal } from "lucide-react";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { Vehicle } from "@/types";
 
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+
 export function InventoryTable({ limit }: { limit?: number }) {
     const { vehicles, deleteVehicle, updateVehicle } = useVehicles();
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    // Filter or Limit
-    const displayedVehicles = limit ? vehicles.slice(0, limit) : vehicles;
+    // Filter and Limit
+    const displayedVehicles = vehicles
+        .filter(v => {
+            if (!searchTerm) return true;
+            const term = searchTerm.toLowerCase();
+            const stock = v.stockNumber?.toLowerCase() || "";
+            const title = `${v.make} ${v.model} ${v.year}`.toLowerCase();
+            return stock.includes(term) || title.includes(term);
+        })
+        .slice(0, limit || vehicles.length);
 
     const handleDelete = async () => {
         if (deleteId) {
@@ -66,25 +78,31 @@ export function InventoryTable({ limit }: { limit?: number }) {
 
     return (
         <div className="rounded-xl border bg-card shadow-sm">
-            <div className="p-6 border-b flex justify-between items-center">
+            <div className="p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h3 className="text-lg font-semibold">{limit ? "Recent Listings" : "Inventory Management"}</h3>
                     <p className="text-sm text-muted-foreground">{limit ? "Latest additions to your fleet." : "Manage all vehicles."}</p>
                 </div>
-                {!limit && (
-                    <div className="flex gap-2">
-                        {/* Placeholders for future view toggles */}
-                        <Button variant="outline" size="sm">List View</Button>
-                        <Button variant="ghost" size="sm" className="opacity-50 cursor-not-allowed">Grid View</Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search Stock # or Car..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                )}
+                </div>
             </div>
             <div className="relative w-full overflow-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             {!limit && <TableHead>Image</TableHead>}
+                            <TableHead>Stock #</TableHead>
                             <TableHead>Vehicle</TableHead>
+                            <TableHead>Date Listed</TableHead>
                             <TableHead>VIN</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Status</TableHead>
@@ -94,7 +112,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                     <TableBody>
                         {displayedVehicles.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={limit ? 5 : 6} className="h-24 text-center">
+                                <TableCell colSpan={limit ? 7 : 8} className="h-24 text-center">
                                     No vehicles found.
                                 </TableCell>
                             </TableRow>
@@ -108,8 +126,14 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                             </div>
                                         </TableCell>
                                     )}
+                                    <TableCell className="font-mono font-medium text-xs">
+                                        {vehicle.stockNumber || "-"}
+                                    </TableCell>
                                     <TableCell className="font-medium">
                                         {vehicle.year} {vehicle.make} {vehicle.model}
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground text-sm">
+                                        {vehicle.createdAt ? new Date(vehicle.createdAt).toLocaleDateString() : "-"}
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">{vehicle.vin}</TableCell>
                                     <TableCell>${vehicle.price.toLocaleString()}</TableCell>

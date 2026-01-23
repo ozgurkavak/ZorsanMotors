@@ -8,7 +8,7 @@ export interface Vehicle {
   mileage: number;
   bodyType: string;
   fuelType: "Gasoline" | "Hybrid" | "Electric" | "Diesel";
-  transmission: "Automatic" | "Manual";
+  transmission: "Automatic" | "Manual" | "CVT" | "DCT";
   image: string;
   condition: "Used" | "Certified Pre-Owned";
   exteriorColor: string;
@@ -17,6 +17,8 @@ export interface Vehicle {
   carfaxUrl?: string;
   status?: string; // Added to match DB
   images?: string[];
+  stockNumber?: string;
+  createdAt?: string;
 }
 
 export interface FinancingLead {

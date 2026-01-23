@@ -52,7 +52,9 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
                 interiorColor: v.interior_color,
                 features: v.features,
                 carfaxUrl: v.carfax_url || `/carfax-report/${v.id}`,
-                status: v.status
+                status: v.status,
+                stockNumber: v.stock_number,
+                createdAt: v.created_at
             }));
             setVehicles(mappedVehicles);
         }

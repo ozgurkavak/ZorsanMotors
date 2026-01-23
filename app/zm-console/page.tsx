@@ -1,6 +1,6 @@
 "use client";
 
-import { AddVehicleForm } from "@/components/admin/AddVehicleForm";
+import { AddVehicleDialog } from "@/components/admin/AddVehicleDialog";
 import { InventoryTable } from "@/components/admin/InventoryTable";
 import { DollarSign, Car, CreditCard, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,8 +20,11 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <div className="text-sm text-muted-foreground">Admin / Overview</div>
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                    <div className="text-sm text-muted-foreground">Admin / Overview</div>
+                </div>
+                <AddVehicleDialog />
             </div>
 
             {/* Stats Cards */}
@@ -68,16 +71,9 @@ export default function AdminDashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
-                {/* Add Form Area */}
-                <div className="xl:col-span-1">
-                    <AddVehicleForm />
-                </div>
-
+            <div className="grid gap-8">
                 {/* Inventory List Area */}
-                <div className="xl:col-span-2">
-                    <InventoryTable limit={5} />
-                </div>
+                <InventoryTable limit={10} />
             </div>
         </div>
     );
