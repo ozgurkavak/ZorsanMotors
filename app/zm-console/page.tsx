@@ -24,7 +24,6 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                     <div className="text-sm text-muted-foreground">Admin / Overview</div>
                 </div>
-                <AddVehicleDialog />
             </div>
 
             {/* Stats Cards */}
@@ -69,6 +68,10 @@ export default function AdminDashboard() {
                         <p className="text-xs text-muted-foreground">Currently pending sale</p>
                     </CardContent>
                 </Card>
+            </div>
+
+            <div className="flex justify-end">
+                <AddVehicleDialog />
             </div>
 
             <div className="grid gap-8">
