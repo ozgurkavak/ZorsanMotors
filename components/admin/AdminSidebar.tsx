@@ -24,7 +24,7 @@ export function AdminSidebar() {
 
     const handleLogout = async () => {
         await logoutAction();
-        router.push("/");
+        window.location.href = "/";
     };
 
     return (
