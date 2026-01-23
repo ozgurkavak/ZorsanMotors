@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Vehicle } from '@/types';
 import { supabase } from '@/lib/supabase';
+import { addVehicleAction, deleteVehicleAction, updateVehicleAction } from '@/app/actions/vehicle';
 
 
 interface VehicleContextType {
@@ -57,7 +58,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
     };
 
     const addVehicle = async (newVehicle: Vehicle) => {
-        // Map frontend CamelCase to DB snake_case
+        // Map frontend CamelCase to DB snake_case for the Server Action
         const dbVehicle = {
             make: newVehicle.make,
             model: newVehicle.model,
@@ -76,57 +77,35 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
             status: newVehicle.status || "Available"
         };
 
-        const { data, error } = await supabase
-            .from('vehicles')
-            .insert([dbVehicle])
-            .select()
-            .single();
-
-        if (error) {
+        try {
+            await addVehicleAction(dbVehicle);
+            fetchVehicles(); // Refresh list to get new ID and data
+        } catch (error) {
             console.error('Error adding vehicle:', error);
             throw error;
-        }
-
-        if (data) {
-            // Re-fetch or add directly. Re-fetching ensures ID matches.
-            // For speed let's just create object, but data.id is key.
-            fetchVehicles();
         }
     };
 
     const deleteVehicle = async (id: string) => {
-        const { error } = await supabase
-            .from('vehicles')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
+        try {
+            await deleteVehicleAction(id);
+            setVehicles((prev) => prev.filter((v) => v.id !== id));
+        } catch (error) {
             console.error('Error deleting vehicle:', error);
             throw error;
         }
-
-        setVehicles((prev) => prev.filter((v) => v.id !== id));
     };
 
     const updateVehicle = async (id: string, updates: Partial<Vehicle>) => {
-        // Simple mapping for status/price which are likely updates
-        const dbUpdates: any = {};
-        if (updates.status) dbUpdates.status = updates.status;
-        if (updates.price) dbUpdates.price = updates.price;
-        // Add more mappings as needed for edit form
-
-        const { error } = await supabase
-            .from('vehicles')
-            .update(dbUpdates)
-            .eq('id', id);
-
-        if (error) {
+        try {
+            await updateVehicleAction(id, updates);
+            // Optimistic update
+            setVehicles((prev) => prev.map(v => v.id === id ? { ...v, ...updates } : v));
+            // Optionally refetch to be sure
+        } catch (error) {
             console.error('Error updating vehicle:', error);
             throw error;
         }
-
-        // Optimistic update
-        setVehicles((prev) => prev.map(v => v.id === id ? { ...v, ...updates } : v));
     };
 
     return (
