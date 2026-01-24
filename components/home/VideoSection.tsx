@@ -13,7 +13,7 @@ export function VideoSection() {
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">
                             At ZorSan Motors, we believe buying a car should be exciting, transparent, and fair.
-                            We believe that buying a used car should be an exciting and stress-free experience,
+                            Buying a used car should be a stress-free experience,
                             which is why we focused on buying and selling widely approved reliable vehicles rather than the most profitable ones.
                             <span className="block mt-4 font-semibold text-primary text-2xl">
                                 No hidden fees, no surprises. The price you see is what you pay.

@@ -10,7 +10,7 @@ export default function AboutPage() {
                     <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Our Story</h1>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                         What started as a small family lot has grown into one of the region's most trusted dealerships.
-                        At Zorsan Motors, we believe buying a car should be exciting, transparent, and fair.
+                        At ZorSan Motors, we believe buying a car should be exciting, transparent, and fair.
                         We have helped thousands of families find their perfect vehicle.
                         We believe that buying a used car should be an exciting and
                         stress-free experience, which is why we meticulously inspect every vehicle and offer tailored financing
