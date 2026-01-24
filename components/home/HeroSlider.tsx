@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -39,7 +40,7 @@ export function HeroSlider() {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrent((prev) => (prev + 1) % slides.length);
-        }, 5000);
+        }, 8000);
         return () => clearInterval(timer);
     }, []);
 
@@ -54,9 +55,13 @@ export function HeroSlider() {
                     transition={{ duration: 1.5 }}
                     className="absolute inset-0"
                 >
-                    <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${slides[current].image})` }}
+                    <Image
+                        src={slides[current].image}
+                        alt="Hero background"
+                        fill
+                        className="object-cover"
+                        priority
+                        quality={90}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                 </motion.div>
