@@ -9,27 +9,27 @@ import { ArrowRight } from "lucide-react";
 const slides = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&q=80",
-        title: "Quality Used Cars",
-        subtitle: "Toyota, Honda, Ford and more. Reliable vehicles at affordable prices.",
-        cta: "View Inventory",
+        image: "https://images.unsplash.com/photo-1590362835106-13de110c050e?auto=format&fit=crop&q=80",
+        title: "Quality Cars Trusted Deals",
+        subtitle: "Multipoint inspected, transparently priced, and ready for you.",
+        cta: "See Specials",
         link: "/inventory"
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1583121274602-3e2820c698d9?auto=format&fit=crop&q=80",
-        title: "Tough Trucks",
-        subtitle: "Get the job done with our selection of powerful pickups.",
-        cta: "View Trucks",
-        link: "/inventory?bodyType=Truck"
+        image: "https://images.unsplash.com/photo-1619682817481-e994891cd1f5?auto=format&fit=crop&q=80",
+        title: "Adventure Awaits",
+        subtitle: "Find the perfect SUV for your next journey. Reliable, spacious, and capable.",
+        cta: "Explore SUVs",
+        link: "/inventory?bodyType=SUV"
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80",
-        title: "Affordable Sedans",
-        subtitle: "Great gas mileage and comfort for your daily commute.",
-        cta: "See Specials",
-        link: "/inventory?bodyType=Sedan"
+        image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80",
+        title: "Shopping from ZorSan = Peace of mind",
+        subtitle: "Experience a stress-free buying process with our curated selection of reliable vehicles.",
+        cta: "Meet Our Team",
+        link: "/about"
     }
 ];
 
