@@ -6,7 +6,7 @@ export default function AboutPage() {
             <div className="flex flex-col gap-8 md:gap-16">
                 {/* Our Story Section */}
                 <section className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
-                    <Badge variant="outline" className="text-primary border-primary">Since 1995</Badge>
+
                     <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Our Story</h1>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                         What started as a small family lot has grown into one of the region's most trusted dealerships.

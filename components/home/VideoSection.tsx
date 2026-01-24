@@ -12,8 +12,9 @@ export function VideoSection() {
                             Why Choose ZorSan Motors?
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            We're not just selling cars; we're building relationships.
-                            We focus on selling affordable and reliable cars.
+                            At ZorSan Motors, we believe buying a car should be exciting, transparent, and fair.
+                            We believe that buying a used car should be an exciting and stress-free experience,
+                            which is why we focused on buying and selling widely approved reliable vehicles rather than the most profitable ones.
                             <span className="block mt-4 font-semibold text-primary text-2xl">
                                 No hidden fees, no surprises. The price you see is what you pay.
                             </span>
