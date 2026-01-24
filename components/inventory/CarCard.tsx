@@ -77,18 +77,7 @@ export function CarCard({ vehicle }: CarCardProps) {
                 </div>
             </CardContent>
 
-            <CardFooter className="p-4 pt-0 grid gap-2">
-                {vehicle.carfaxUrl ? (
-                    <Button variant="outline" className="w-full font-semibold border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950" asChild>
-                        <a href={vehicle.carfaxUrl} target="_blank" rel="noopener noreferrer">
-                            <span className="font-extrabold mr-1">CARFAX</span> Report
-                        </a>
-                    </Button>
-                ) : (
-                    <Button variant="outline" disabled className="w-full font-semibold opacity-50 cursor-not-allowed">
-                        <span className="font-extrabold mr-1">CARFAX</span> Unavailable
-                    </Button>
-                )}
+            <CardFooter className="p-4 pt-0">
                 <Button asChild className="w-full font-semibold">
                     <Link href={`/inventory/${vehicle.id}`}>
                         View Details

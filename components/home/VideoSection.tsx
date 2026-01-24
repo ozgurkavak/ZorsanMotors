@@ -18,11 +18,10 @@ export function VideoSection() {
                         </p>
                     </div>
 
-                    <div className="grid gap-8 md:grid-cols-3 text-left">
+                    <div className="grid gap-8 md:grid-cols-2 text-left max-w-4xl mx-auto">
                         {[
                             { title: "Multipoint Inspection", desc: "Every vehicle is rigorously tested for safety and performance." },
                             { title: "Transparent Pricing", desc: "No hidden fees, no surprises. The price you see is what you pay." },
-                            { title: "7-Day Money Back", desc: "Love it or return it within 7 days. Your satisfaction is guaranteed." },
                         ].map((item, i) => (
                             <div key={i} className="flex flex-col items-center text-center p-6 rounded-2xl bg-background border shadow-sm">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">

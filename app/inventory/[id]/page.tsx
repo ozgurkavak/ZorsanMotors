@@ -127,21 +127,10 @@ export default function CarPage({ params }: CarPageProps) {
                                 *Estimated payment based on 72-month term at 5% APR with $0 down.
                                 Actual terms may vary.
                             </p>
-                            <div className="grid gap-2">
+                            <div className="flex flex-col gap-2">
                                 <Button size="lg" className="w-full" asChild>
                                     <Link href="/finance">Apply for Financing</Link>
                                 </Button>
-                                {vehicle.carfaxUrl || true ? ( // Always show for demo
-                                    <Button size="lg" variant="outline" className="w-full font-semibold border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950" asChild>
-                                        <Link href={getCarfaxLink(vehicle)} target={getCarfaxLink(vehicle).startsWith("http") ? "_blank" : undefined}>
-                                            <span className="font-extrabold mr-1">CARFAX</span> Report
-                                        </Link>
-                                    </Button>
-                                ) : (
-                                    <Button size="lg" variant="outline" disabled className="w-full font-semibold opacity-50 cursor-not-allowed">
-                                        <span className="font-extrabold mr-1">CARFAX</span> Unavailable
-                                    </Button>
-                                )}
                             </div>
                         </CardContent>
                     </Card>

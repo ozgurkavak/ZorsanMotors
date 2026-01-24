@@ -1,11 +1,32 @@
+"use client";
+
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, CheckCircle2 } from "lucide-react";
+import { sendContactMessage } from "@/app/actions/contact";
 
 export default function ContactPage() {
+    const [sending, setSending] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    async function handleSubmit(formData: FormData) {
+        setSending(true);
+        const result = await sendContactMessage(formData);
+        setSending(false);
+
+        if (result?.success) {
+            setSuccess(true);
+            formRef.current?.reset();
+        } else {
+            alert("Something went wrong. Please check your inputs.");
+        }
+    }
+
     return (
         <div className="container max-w-7xl mx-auto py-12 md:py-24">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -70,35 +91,53 @@ export default function ContactPage() {
                             <CardDescription>Fill out the form below and we'll get back to you as soon as possible.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="firstName">First name</Label>
-                                        <Input id="firstName" placeholder="John" />
+                            {success ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-center animate-in fade-in">
+                                    <div className="mb-4 rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900/30">
+                                        <CheckCircle2 className="h-8 w-8" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold">Message Sent!</h3>
+                                    <p className="text-muted-foreground mt-2 max-w-xs">
+                                        Your message has been sent to sales@zorsanmotors.com. We'll be in touch shortly.
+                                    </p>
+                                    <Button className="mt-6" variant="outline" onClick={() => setSuccess(false)}>
+                                        Send Another
+                                    </Button>
+                                </div>
+                            ) : (
+                                <form action={handleSubmit} ref={formRef} className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="firstName">First name</Label>
+                                            <Input id="firstName" name="firstName" required />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="lastName">Last name</Label>
+                                            <Input id="lastName" name="lastName" required />
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="lastName">Last name</Label>
-                                        <Input id="lastName" placeholder="Doe" />
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input id="email" name="email" type="email" required />
                                     </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="john@example.com" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">Phone</Label>
-                                    <Input id="phone" type="tel" placeholder="(555) 123-4567" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="message">Message</Label>
-                                    <Textarea
-                                        id="message"
-                                        placeholder="I'm interested in the 2021 Ford F-150..."
-                                        className="min-h-[150px]"
-                                    />
-                                </div>
-                                <Button className="w-full" size="lg">Send Message</Button>
-                            </form>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Phone</Label>
+                                        <Input id="phone" name="phone" type="tel" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="message">Message</Label>
+                                        <Textarea
+                                            id="message"
+                                            name="message"
+                                            className="min-h-[150px]"
+                                            required
+                                        />
+                                    </div>
+                                    <Button className="w-full" size="lg" disabled={sending}>
+                                        {sending ? "Sending Message..." : "Send Message"}
+                                    </Button>
+                                </form>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
