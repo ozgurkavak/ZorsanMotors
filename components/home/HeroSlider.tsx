@@ -27,7 +27,7 @@ const slides = [
     {
         id: 3,
         image: "/hero-slides/slide3.jpg",
-        title: "Shopping from ZorSan = Peace of mind",
+        title: "Shopping From ZorSan = Peace Of Mind",
         subtitle: "Experience a stress-free buying process with our curated selection of reliable vehicles.",
         cta: "Meet Our Team",
         link: "/about"
