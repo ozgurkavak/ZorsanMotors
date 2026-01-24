@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const contactSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -27,24 +28,27 @@ export async function sendContactMessage(formData: FormData) {
 
     const { firstName, lastName, email, phone, message } = validatedFields.data;
 
-    // In a real application, you would use an email provider here (Resend, SendGrid, etc.)
-    // For now, we simulate sending by logging to the console.
+    // Save to Supabase Database
+    try {
+        const { error } = await supabaseAdmin
+            .from('contact_messages')
+            .insert({
+                first_name: firstName,
+                last_name: lastName,
+                email,
+                phone,
+                message
+            });
 
-    const emailContent = `
-  --- NEW CONTACT MESSAGE ---
-  To: sales@zorsanmotors.com
-  From: ${firstName} ${lastName} <${email}>
-  Phone: ${phone || "Not provided"}
-  
-  Message:
-  ${message}
-  ---------------------------
-  `;
-
-    console.log(emailContent);
-
-    // Simulate delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+        if (error) {
+            console.error("Supabase Error:", error);
+            return { success: false, errors: { form: ["System error. Please contact support."] } };
+        }
+    } catch (err) {
+        console.error("Unexpected error:", err);
+        // Don't expose system errors to user, but log them
+        return { success: false, errors: { form: ["Unexpected system error."] } };
+    }
 
     return { success: true, message: "Message sent successfully!" };
 }

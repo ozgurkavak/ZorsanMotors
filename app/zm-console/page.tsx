@@ -2,6 +2,7 @@
 
 import { AddVehicleDialog } from "@/components/admin/AddVehicleDialog";
 import { InventoryTable } from "@/components/admin/InventoryTable";
+import { MessagesDialog } from "@/components/admin/MessagesDialog";
 import { DollarSign, Car, CreditCard, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useVehicles } from "@/lib/vehicle-context";
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                     <div className="text-sm text-muted-foreground">Admin / Overview</div>
                 </div>
+                <MessagesDialog />
             </div>
 
             {/* Stats Cards */}
