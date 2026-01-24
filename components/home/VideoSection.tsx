@@ -8,7 +8,7 @@ export function VideoSection() {
             <div className="container relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-center text-center space-y-12">
                     <div className="max-w-3xl">
-                        <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl select-none">
                             Why Choose ZorSan Motors?
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">

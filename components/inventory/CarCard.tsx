@@ -17,7 +17,7 @@ export function CarCard({ vehicle }: CarCardProps) {
     const montlyPayment = Math.round(vehicle.price / 72);
 
     return (
-        <Link href={`/inventory/${vehicle.id}`} className="block h-full cursor-pointer">
+        <Link href={`/inventory/${vehicle.id}`} className="block h-full cursor-pointer select-none">
             <Card className="h-full group overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
                 <div className="relative aspect-[16/9] overflow-hidden">
                     <Image

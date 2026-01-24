@@ -22,7 +22,7 @@ export default function Home() {
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Latest Arrivals</h2>
+              <h2 className="text-3xl font-bold tracking-tight select-none">Latest Arrivals</h2>
               <p className="text-muted-foreground mt-2">Fresh on the lot. Don't miss out.</p>
             </div>
             <Button variant="ghost" asChild className="hidden md:flex">

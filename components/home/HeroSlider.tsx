@@ -67,7 +67,7 @@ export function HeroSlider() {
                 </motion.div>
             </AnimatePresence>
 
-            <div className="absolute inset-0 z-10 flex items-center justify-center text-center">
+            <div className="absolute inset-0 z-10 flex items-center justify-center text-center select-none">
                 <div className="container max-w-4xl px-4">
                     <AnimatePresence mode="wait">
                         <motion.div
