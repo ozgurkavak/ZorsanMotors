@@ -48,7 +48,7 @@ export function CarCard({ vehicle }: CarCardProps) {
                     </div>
                 </CardHeader>
 
-                <CardContent className="p-4 pt-2">
+                <CardContent className="p-4 pt-2 pb-6">
                     <Separator className="mb-4" />
                     <div className="grid grid-cols-2 gap-y-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -67,14 +67,6 @@ export function CarCard({ vehicle }: CarCardProps) {
                             <Zap className="h-4 w-4 text-primary" />
                             <span>{vehicle.transmission}</span>
                         </div>
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between rounded-lg bg-muted/50 p-2">
-                        <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-primary" />
-                            <span className="text-xs font-medium">Est. Payment</span>
-                        </div>
-                        <span className="text-sm font-bold">${montlyPayment}/mo</span>
                     </div>
                 </CardContent>
             </Card>
