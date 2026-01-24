@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form,
     FormControl,
@@ -13,6 +14,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form";
 import {
     Select,
@@ -29,7 +31,7 @@ import {
     DialogDescription,
     DialogFooter
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Vehicle } from "@/types";
 import { useVehicles } from "@/lib/vehicle-context";
 import { supabase } from "@/lib/supabase";
@@ -43,10 +45,19 @@ const vehicleSchema = z.object({
     mileage: z.string().min(1, "Mileage is required"),
     status: z.enum(["Available", "Sold", "Reserved"]),
     bodyType: z.enum(["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"]).optional(),
-    image: z.any().optional(),
+    transmission: z.enum(["Automatic", "Manual", "CVT", "DCT"]).optional(),
+    features: z.array(z.string()).optional(),
+    images: z.any().optional(),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
+
+const featuresList = [
+    "Bluetooth", "Backup Camera", "Heated Seats", "Navigation",
+    "Apple CarPlay", "Android Auto", "Lane Assist", "Blind Spot Monitor",
+    "Sunroof", "Leather Seats", "Third Row Seating", "Keyless Entry",
+    "Remote Start", "Premium Sound", "Adaptive Cruise Control"
+];
 
 interface EditVehicleDialogProps {
     vehicle: Vehicle | null;
@@ -57,7 +68,11 @@ interface EditVehicleDialogProps {
 export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDialogProps) {
     const { updateVehicle } = useVehicles();
     const [loading, setLoading] = useState(false);
-    const [preview, setPreview] = useState<string | null>(null);
+
+    // Image State
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [newFiles, setNewFiles] = useState<File[]>([]);
+    const [newPreviews, setNewPreviews] = useState<string[]>([]);
 
     const form = useForm<VehicleFormValues>({
         resolver: zodResolver(vehicleSchema),
@@ -69,6 +84,9 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
             vin: "",
             mileage: "",
             status: "Available",
+            bodyType: "Sedan",
+            transmission: "Automatic",
+            features: [],
         },
     });
 
@@ -83,18 +101,38 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 mileage: vehicle.mileage.toString(),
                 status: (vehicle.status as "Available" | "Sold" | "Reserved") || "Available",
                 bodyType: vehicle.bodyType as any,
+                transmission: vehicle.transmission as any || "Automatic",
+                features: vehicle.features || [],
             });
-            setPreview(vehicle.image);
+
+            // Initialize images
+            setExistingImages(vehicle.images || (vehicle.image ? [vehicle.image] : []));
+            setNewFiles([]);
+            setNewPreviews([]);
         }
     }, [vehicle, open, form]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setPreview(url);
-            form.setValue("image", file, { shouldValidate: true });
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            const addedFiles = Array.from(files);
+            const addedPreviews = addedFiles.map(file => URL.createObjectURL(file));
+
+            setNewFiles(prev => [...prev, ...addedFiles]);
+            setNewPreviews(prev => [...prev, ...addedPreviews]);
         }
+    };
+
+    const removeExistingImage = (index: number) => {
+        setExistingImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeNewImage = (index: number) => {
+        const previewUrl = newPreviews[index];
+        URL.revokeObjectURL(previewUrl);
+
+        setNewPreviews(prev => prev.filter((_, i) => i !== index));
+        setNewFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     const onSubmit = async (data: VehicleFormValues) => {
@@ -102,26 +140,29 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
         setLoading(true);
 
         try {
-            let imageUrl = vehicle.image;
+            const uploadedUrls: string[] = [];
 
-            // Handle Image Upload if changed
-            if (data.image instanceof File) {
-                const imageFile = data.image;
-                const fileExt = imageFile.name.split('.').pop();
+            // Upload new images
+            for (const file of newFiles) {
+                const fileExt = file.name.split('.').pop();
                 const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
                 const { error: uploadError } = await supabase.storage
                     .from('vehicle-images')
-                    .upload(fileName, imageFile);
+                    .upload(fileName, file);
 
-                if (uploadError) throw uploadError;
+                if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
 
                 const { data: publicUrlData } = supabase.storage
                     .from('vehicle-images')
                     .getPublicUrl(fileName);
 
-                imageUrl = publicUrlData.publicUrl;
+                uploadedUrls.push(publicUrlData.publicUrl);
             }
+
+            // Combine existing (remaining) and new images
+            const finalImages = [...existingImages, ...uploadedUrls];
+            const primaryImage = finalImages.length > 0 ? finalImages[0] : "";
 
             const updates: Partial<Vehicle> = {
                 make: data.make,
@@ -132,11 +173,18 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 vin: data.vin,
                 status: data.status,
                 bodyType: data.bodyType,
-                image: imageUrl,
+                transmission: data.transmission as any,
+                features: data.features || [],
+                image: primaryImage,
+                images: finalImages,
                 condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
             };
 
             await updateVehicle(vehicle.id, updates);
+
+            // Cleanup previews
+            newPreviews.forEach(url => URL.revokeObjectURL(url));
+
             onOpenChange(false);
         } catch (error) {
             console.error("Update error:", error);
@@ -183,7 +231,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField
                                 control={form.control}
                                 name="year"
@@ -217,9 +265,53 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="transmission"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Transmission</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {["Automatic", "Manual", "CVT", "DCT"].map((t) => (
+                                                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Price ($)</FormLabel>
+                                        <FormControl><Input type="number" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="mileage"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Mileage</FormLabel>
+                                        <FormControl><Input type="number" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="status"
@@ -242,38 +334,64 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="price"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Price ($)</FormLabel>
-                                        <FormControl><Input type="number" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="vin"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>VIN</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} className="font-mono uppercase" maxLength={17} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="space-y-3">
+                            <FormLabel>Vehicle Features</FormLabel>
                             <FormField
                                 control={form.control}
-                                name="mileage"
-                                render={({ field }) => (
+                                name="features"
+                                render={() => (
                                     <FormItem>
-                                        <FormLabel>Mileage</FormLabel>
-                                        <FormControl><Input type="number" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="vin"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>VIN</FormLabel>
-                                        <FormControl><Input {...field} className="font-mono uppercase" maxLength={17} /></FormControl>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                            {featuresList.map((feature) => (
+                                                <FormField
+                                                    key={feature}
+                                                    control={form.control}
+                                                    name="features"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={feature}
+                                                                className="flex flex-row items-center space-x-2 space-y-0 p-2 rounded-md border bg-muted/20"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(feature)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            return checked
+                                                                                ? field.onChange([...(field.value || []), feature])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== feature
+                                                                                    )
+                                                                                )
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="text-xs font-normal cursor-pointer flex-1">
+                                                                    {feature}
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -281,22 +399,49 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                         </div>
 
                         <div className="space-y-2">
-                            <FormLabel>Vehicle Image</FormLabel>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1">
-                                    <Input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="cursor-pointer"
-                                    />
+                            <FormLabel>Vehicle Images</FormLabel>
+                            <div className="flex flex-col gap-4">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageChange}
+                                    className="cursor-pointer"
+                                />
+                                <div className="grid grid-cols-4 gap-4">
+                                    {/* Existing Images */}
+                                    {existingImages.map((url, index) => (
+                                        <div key={`existing-${index}`} className="relative aspect-video rounded-md overflow-hidden border">
+                                            <img src={url} alt={`Existing ${index}`} className="h-full w-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeExistingImage(index)}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
+                                                title="Remove Image"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* New Previews */}
+                                    {newPreviews.map((url, index) => (
+                                        <div key={`new-${index}`} className="relative aspect-video rounded-md overflow-hidden border border-primary/50">
+                                            <img src={url} alt={`Preview ${index}`} className="h-full w-full object-cover" />
+                                            <div className="absolute inset-0 bg-primary/10 pointer-events-none" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeNewImage(index)}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
+                                                title="Remove Upload"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
-                                {preview && (
-                                    <div className="h-16 w-24 shrink-0 overflow-hidden rounded-md border">
-                                        <img src={preview} alt="Preview" className="h-full w-full object-cover" />
-                                    </div>
-                                )}
                             </div>
+                            <FormDescription>Manage vehicle images. Add new ones or remove existing ones.</FormDescription>
                         </div>
 
                         <DialogFooter>
