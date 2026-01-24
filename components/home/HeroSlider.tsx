@@ -9,7 +9,7 @@ import { ArrowRight } from "lucide-react";
 const slides = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1590362835106-13de110c050e?auto=format&fit=crop&q=80",
+        image: "/hero-slides/slide1.jpg",
         title: "Quality Cars Trusted Deals",
         subtitle: "Multipoint inspected, transparently priced, and ready for you.",
         cta: "See Specials",
@@ -17,7 +17,7 @@ const slides = [
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1619682817481-e994891cd1f5?auto=format&fit=crop&q=80",
+        image: "/hero-slides/slide2.jpg",
         title: "Adventure Awaits",
         subtitle: "Find the perfect SUV for your next journey. Reliable, spacious, and capable.",
         cta: "Explore SUVs",
@@ -25,7 +25,7 @@ const slides = [
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80",
+        image: "/hero-slides/slide3.jpg",
         title: "Shopping from ZorSan = Peace of mind",
         subtitle: "Experience a stress-free buying process with our curated selection of reliable vehicles.",
         cta: "Meet Our Team",
