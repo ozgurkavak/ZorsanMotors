@@ -23,7 +23,7 @@ export function CarCard({ vehicle }: CarCardProps) {
                     src={(!imgError && vehicle.image) ? vehicle.image : "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=800"}
                     alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     onError={() => setImgError(true)}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />

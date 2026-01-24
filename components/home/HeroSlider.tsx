@@ -9,27 +9,27 @@ import { ArrowRight } from "lucide-react";
 const slides = [
     {
         id: 1,
-        image: "https://images.unsplash.com/photo-1605893477799-b99e3b8b93fe?auto=format&fit=crop&q=80&w=2070",
-        title: "Experience the Extraordinary",
-        subtitle: "Drive home your dream car today. Quality vehicles at prices you can afford.",
+        image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&q=80",
+        title: "Quality Used Cars",
+        subtitle: "Toyota, Honda, Ford and more. Reliable vehicles at affordable prices.",
         cta: "View Inventory",
         link: "/inventory"
     },
     {
         id: 2,
-        image: "https://images.unsplash.com/photo-1555215696-99ac45e43d34?q=80&w=2670&auto=format&fit=crop",
-        title: "Quality Cars Trusted Deals",
-        subtitle: "Multipoint inspected, transparently priced, and ready for you.",
-        cta: "See Specials",
-        link: "/inventory"
+        image: "https://images.unsplash.com/photo-1583121274602-3e2820c698d9?auto=format&fit=crop&q=80",
+        title: "Tough Trucks",
+        subtitle: "Get the job done with our selection of powerful pickups.",
+        cta: "View Trucks",
+        link: "/inventory?bodyType=Truck"
     },
     {
         id: 3,
-        image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2069&auto=format&fit=crop",
-        title: "Adventure Awaits",
-        subtitle: "Find the perfect SUV for your next journey. Reliable, spacious, and capable.",
-        cta: "Explore SUVs",
-        link: "/inventory?bodyType=SUV"
+        image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80",
+        title: "Affordable Sedans",
+        subtitle: "Great gas mileage and comfort for your daily commute.",
+        cta: "See Specials",
+        link: "/inventory?bodyType=Sedan"
     }
 ];
 

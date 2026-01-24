@@ -122,7 +122,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                     {!limit && (
                                         <TableCell>
                                             <div className="h-16 w-24 rounded overflow-hidden">
-                                                <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover" />
+                                                <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover object-center" />
                                             </div>
                                         </TableCell>
                                     )}

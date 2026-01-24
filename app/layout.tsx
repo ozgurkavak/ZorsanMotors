@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Zorsan Motors | Affordable & Reliable Used Cars",
-    template: "%s | Zorsan Motors",
+    default: "ZorSan Motors | Affordable & Reliable Used Cars",
+    template: "%s | ZorSan Motors",
   },
-  description: "Find your dream car at Zorsan Motors. Quality used vehicles, certified pre-owned, and flexible financing options.",
+  description: "Find your dream car at ZorSan Motors. Quality used vehicles, certified pre-owned, and flexible financing options.",
 };
 
 export default function RootLayout({
