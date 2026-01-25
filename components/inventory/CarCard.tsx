@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Fuel, Gauge, Calendar, Zap, CreditCard, CarFront } from "lucide-react";
+import { Fuel, Gauge, Calendar, Zap, CarFront } from "lucide-react";
 
 interface CarCardProps {
     vehicle: Vehicle;
@@ -14,7 +14,7 @@ interface CarCardProps {
 
 export function CarCard({ vehicle }: CarCardProps) {
     const [imgError, setImgError] = useState(false);
-    const montlyPayment = Math.round(vehicle.price / 72);
+
 
     return (
         <Link href={`/inventory/${vehicle.id}`} className="block h-full cursor-pointer select-none">

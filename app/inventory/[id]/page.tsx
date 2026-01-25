@@ -26,7 +26,7 @@ export default function CarPage({ params }: CarPageProps) {
         return <div className="p-8 text-center text-red-500">Vehicle not found (might be loading or persisted data issue).</div>;
     }
 
-    const montlyPayment = Math.round(vehicle.price / 72);
+
 
     const images = (vehicle.images && vehicle.images.length > 0) ? vehicle.images : [vehicle.image];
     const activeImage = images[activeImageIndex] || vehicle.image;
@@ -117,23 +117,11 @@ export default function CarPage({ params }: CarPageProps) {
                         </div>
                     </div>
 
-                    <Card>
-                        <CardContent className="p-6 space-y-4">
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium">Estimated Payment</span>
-                                <span className="text-xl font-bold">${montlyPayment}/mo</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                *Estimated payment based on 72-month term at 5% APR with $0 down.
-                                Actual terms may vary.
-                            </p>
-                            <div className="flex flex-col gap-2">
-                                <Button size="lg" className="w-full" asChild>
-                                    <Link href="/finance">Apply for Financing</Link>
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="flex flex-col gap-2">
+                        <Button size="lg" className="w-full" asChild>
+                            <Link href="/finance">Apply for Financing</Link>
+                        </Button>
+                    </div>
 
                     <div className="space-y-2">
                         <h3 className="font-semibold">Vehicle Features</h3>
