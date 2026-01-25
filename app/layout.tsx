@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     template: "%s | ZorSan Motors",
   },
   description: "Find your dream car at ZorSan Motors. Quality used vehicles, certified pre-owned, and flexible financing options.",
+  icons: {
+    icon: '/logo3.png',
+  },
 };
 
 export default function RootLayout({
