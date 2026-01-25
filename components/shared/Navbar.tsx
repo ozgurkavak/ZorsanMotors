@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Car } from "lucide-react";
 
 export async function Navbar() {
     const cookieStore = await cookies();
@@ -11,7 +11,7 @@ export async function Navbar() {
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
             <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
                 <Link href="/" className="flex items-center space-x-2 select-none outline-none">
-                    <img src="/logo.png" alt="ZorSan Motors Logo" className="h-10 w-10 object-contain" />
+                    <Car className="h-6 w-6 text-primary" />
                     <span className="text-xl font-bold tracking-tight">ZorSan <span className="text-primary">Motors</span></span>
                 </Link>
                 <nav className="hidden md:flex gap-6 text-sm font-medium">
