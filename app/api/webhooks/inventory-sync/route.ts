@@ -44,11 +44,18 @@ export async function POST(request: Request) {
         //   .from('vehicles')
         //   .upsert(vehicles, { onConflict: 'vin' });
 
-        // 4. Log Success
+        // 4. Log Success with Enhanced Details
+        const meta = body.meta || {}; // Get V6 meta stats
+
         await supabase.from('sync_logs').insert({
             event_type: 'SYNC_SUCCESS',
-            message: `Successfully processed ${vehicles.length} vehicle(s).`,
-            details: { count: vehicles.length, example_vin: vehicles[0]?.vin }
+            message: `Processed ${vehicles.length} vehicles. (Skipped: ${meta.skipped_count || 0})`,
+            details: {
+                count: vehicles.length,
+                skipped: meta.skipped_count || 0,
+                skipped_details: meta.skipped_details || [],
+                example_vin: vehicles[0]?.vin
+            }
         });
 
         return NextResponse.json({ success: true, message: `Processed ${vehicles.length} vehicles.` });
