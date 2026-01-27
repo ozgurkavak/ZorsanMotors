@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail } from '@/lib/email';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -65,6 +66,26 @@ export async function POST(request: Request) {
         } catch (logError) {
             console.error('Failed to log error to DB:', logError);
         }
+
+        // 6. Send Critical Alert Email
+        await sendEmail({
+            to: 'admin@zorsanmotors.com', // Or use env var
+            subject: '🚨 CRITICAL: Inventory Sync Failed',
+            html: `
+            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h2 style="color: #ef4444;">System Alert: Sync Failed</h2>
+                <p>The automated inventory sync encountered a critical error.</p>
+                
+                <div style="background: #fef2f2; padding: 15px; border-radius: 6px; border-left: 4px solid #ef4444; margin: 20px 0;">
+                    <strong>Error Message:</strong><br/>
+                    <code>${error.message}</code>
+                </div>
+
+                <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                <p>Please check the <a href="https://zorsanmotors.com/zm-console/logs">Admin Dashboard</a> for more details.</p>
+            </div>
+        `
+        });
 
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
