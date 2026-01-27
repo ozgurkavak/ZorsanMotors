@@ -17,6 +17,15 @@ export async function POST(request: Request) {
 
         // 2. Parse Body (Expect JSON data from the VPS script)
         const body = await request.json();
+
+        // --- HEARTBEAT CHECK ---
+        if (body.type === 'HEARTBEAT') {
+            const { error } = await supabase.from('sync_heartbeats').insert({ status: 'ALIVE' });
+            if (error) console.error("Heartbeat error:", error);
+            return NextResponse.json({ success: true, message: 'Heartbeat received' });
+        }
+        // -----------------------
+
         const { vehicles } = body;
 
         if (!Array.isArray(vehicles)) {

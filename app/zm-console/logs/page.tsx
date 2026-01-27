@@ -33,10 +33,29 @@ async function getLogs() {
     return data || [];
 }
 
+async function getSystemStatus() {
+    const { data } = await supabaseAdmin
+        .from('sync_heartbeats')
+        .select('created_at')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (!data) return 'OFFLINE';
+
+    // Check if heartbeat is older than 2 hours (Script sends every 1 hour)
+    const lastHeartbeat = new Date(data.created_at).getTime();
+    const now = new Date().getTime();
+    const diffHours = (now - lastHeartbeat) / (1000 * 60 * 60);
+
+    return diffHours < 2 ? 'ONLINE' : 'OFFLINE';
+}
+
 export const revalidate = 0; // Disable cache for logs
 
 export default async function SyncLogsPage() {
     const logs = await getLogs();
+    const systemStatus = await getSystemStatus();
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -46,10 +65,17 @@ export default async function SyncLogsPage() {
                     <div className="text-sm text-muted-foreground">Monitor automated inventory transfers from DealerCenter</div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="flex gap-1 items-center px-3 py-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        System Active
-                    </Badge>
+                    {systemStatus === 'ONLINE' ? (
+                        <Badge variant="outline" className="flex gap-1 items-center px-3 py-1 border-green-500/50 bg-green-500/10 text-green-700">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            System Online
+                        </Badge>
+                    ) : (
+                        <Badge variant="destructive" className="flex gap-1 items-center px-3 py-1">
+                            <div className="w-2 h-2 rounded-full bg-white" />
+                            System Offline
+                        </Badge>
+                    )}
                 </div>
             </div>
 
