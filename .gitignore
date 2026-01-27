@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Documentation & Drafts
+vendor_email_draft.txt
+scripts/deploy_service.sh

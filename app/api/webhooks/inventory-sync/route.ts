@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Use Service Role Key for Admin write access
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Must use Service Role Key to bypass RLS for logs if needed
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -34,12 +34,29 @@ export async function POST(request: Request) {
         //   .from('vehicles')
         //   .upsert(vehicles, { onConflict: 'vin' });
 
-        // if (error) throw error;
+        // 4. Log Success
+        await supabase.from('sync_logs').insert({
+            event_type: 'SYNC_SUCCESS',
+            message: `Successfully processed ${vehicles.length} vehicle(s).`,
+            details: { count: vehicles.length, example_vin: vehicles[0]?.vin }
+        });
 
         return NextResponse.json({ success: true, message: `Processed ${vehicles.length} vehicles.` });
 
     } catch (error: any) {
         console.error('Inventory Sync Error:', error);
+
+        // 5. Log Error
+        try {
+            await supabase.from('sync_logs').insert({
+                event_type: 'SYNC_ERROR',
+                message: 'Failed to process inventory file.',
+                details: { error: error.message }
+            });
+        } catch (logError) {
+            console.error('Failed to log error to DB:', logError);
+        }
+
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
