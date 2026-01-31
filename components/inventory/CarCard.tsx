@@ -15,13 +15,16 @@ interface CarCardProps {
 export function CarCard({ vehicle }: CarCardProps) {
     const [imgError, setImgError] = useState(false);
 
+    // Robust image selection: explicit image field -> first image in array -> placeholder
+    const displayImage = vehicle.image || (vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : null);
+    const validImage = (!imgError && displayImage) ? displayImage : "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=800";
 
     return (
         <Link href={`/inventory/${vehicle.id}`} className="block h-full cursor-pointer select-none">
             <Card className="h-full group overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
                 <div className="relative aspect-[16/9] overflow-hidden">
                     <Image
-                        src={(!imgError && vehicle.image) ? vehicle.image : "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=800"}
+                        src={validImage}
                         alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                         fill
                         className="object-cover object-center transition-transform duration-500 group-hover:scale-105"

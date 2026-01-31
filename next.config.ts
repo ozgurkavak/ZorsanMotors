@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ydnuyhdgiphicpgctqnh.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "imagesdl.dealercenter.net",
+      },
     ],
   },
 };
