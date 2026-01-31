@@ -76,27 +76,40 @@ class InventoryHandler(FTPHandler):
                     total_rows += 1
                     
                     # 1. Basic Validation
-                    vin = row.get('VIN') or row.get('vin')
-                    price_raw = row.get('Price') or row.get('Internet Price')
+                    vin = row.get('VIN')
+                    # DealerCenter uses 'SpecialPrice' as the selling price
+                    price_raw = row.get('SpecialPrice') or row.get('Price') or row.get('Internet Price')
                     
                     if not vin:
                         skipped_rows.append({"row": row_num, "reason": "Missing VIN"})
                         continue
                     
                     # 2. Extract Data
+                    # Handle Photo URLs (space separated in CSV)
+                    raw_photos = row.get('PhotoURLs', '')
+                    photo_list = raw_photos.split(' ') if raw_photos else []
+                    # Filter empty strings
+                    photo_list = [p for p in photo_list if p.strip()]
+
                     vehicle = {
                         "vin": vin,
-                        "stockNumber": row.get('Stock Number') or row.get('stk') or row.get('StockNumber'),
+                        "stockNumber": row.get('StockNumber') or f"VIN-{vin[-6:]}", # Fallback if no stock #
                         "year": int(row.get('Year') or 0),
                         "make": row.get('Make'),
                         "model": row.get('Model'),
+                        "trim": row.get('Trim'),
                         "price": float(price_raw or 0),
-                        "mileage": int(row.get('Mileage') or 0),
-                        "description": row.get('Description'),
+                        "mileage": int(row.get('Odometer') or row.get('Mileage') or 0),
+                        "description": row.get('WebAdDescription') or row.get('Description'),
+                        "exteriorColor": row.get('ExteriorColor'),
+                        "interiorColor": row.get('InteriorColor'),
+                        "transmission": row.get('Transmission'),
+                        "images": photo_list,
+                        "image": photo_list[0] if photo_list else None
                     }
                     
                     # 3. Enhanced Validation
-                    # Allow 0 price (will be treated as "Call for Price")
+                    # Allow 0 price (will be treated as "Call for Price") in case SpecialPrice is empty
                     vehicles.append(vehicle)
 
             print(f"Parsed {len(vehicles)} vehicles. Skipped {len(skipped_rows)}.")
