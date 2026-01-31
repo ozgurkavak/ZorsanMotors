@@ -3,6 +3,8 @@ import requests
 import csv
 import time
 import threading
+import shutil
+import datetime
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
@@ -45,6 +47,20 @@ class InventoryHandler(FTPHandler):
         """Called when a file has been completely received."""
         print(f"File received: {file}")
         
+        # --- BACKUP LOGIC ---
+        try:
+            backup_dir = "processed_backups"
+            if not os.path.exists(backup_dir):
+                os.makedirs(backup_dir)
+            
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_filename = f"{backup_dir}/inventory_{timestamp}_{os.path.basename(file)}"
+            shutil.copy2(file, backup_filename)
+            print(f"Backup created: {backup_filename}")
+        except Exception as e:
+            print(f"Backup failed: {e}")
+        # --------------------
+
         if not (file.endswith('.csv') or file.endswith('.txt')):
             print("Ignored non-csv file.")
             return
@@ -79,12 +95,8 @@ class InventoryHandler(FTPHandler):
                         "description": row.get('Description'),
                     }
                     
-                    # 3. Enhanced Validation (Optional Example)
-                    if vehicle['price'] == 0:
-                        skipped_rows.append({"row": row_num, "vin": vin, "reason": "Price is 0 (Warning)"})
-                        # We still add it, but log a warning (or you can choose to skip)
-                        # vehicles.append(vehicle) 
-                    
+                    # 3. Enhanced Validation
+                    # Allow 0 price (will be treated as "Call for Price")
                     vehicles.append(vehicle)
 
             print(f"Parsed {len(vehicles)} vehicles. Skipped {len(skipped_rows)}.")

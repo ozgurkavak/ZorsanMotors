@@ -1,0 +1,196 @@
+[
+    {
+        "idx": 0,
+        "id": "c9e51f59-e181-4cf7-b4cb-e7c39605b5d3",
+        "event_type": "SYNC_SUCCESS",
+        "message": "Processed 36 vehicles. (Skipped: 36)",
+        "details": {
+            "count": 36,
+            "skipped": 36,
+            "example_vin": "JTMRFREV3ED094633",
+            "skipped_details": [
+                {
+                    "row": 1,
+                    "vin": "JTMRFREV3ED094633",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 2,
+                    "vin": "JTDJTUD38CD514425",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 3,
+                    "vin": "1G1ZK57798F213063",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 4,
+                    "vin": "JTDKB20U883404191",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 5,
+                    "vin": "4T1BE46K77U516333",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 6,
+                    "vin": "JN8AZ2NE8J9191680",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 7,
+                    "vin": "5FNRL5H66BB090358",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 8,
+                    "vin": "JTDKN3DU4C5440691",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 9,
+                    "vin": "JTDKB20U693518031",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 10,
+                    "vin": "JTDKN3DU3A0143793",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 11,
+                    "vin": "2T3BF4DV8CW209829",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 12,
+                    "vin": "5TDZA23C25S354287",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 13,
+                    "vin": "WA1ECCFS3HR006657",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 14,
+                    "vin": "5TBDT44186S506239",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 15,
+                    "vin": "19XFB2F58CE300111",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 16,
+                    "vin": "JHMGE882X9C002708",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 17,
+                    "vin": "JTDZN3EU8C3111887",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 18,
+                    "vin": "2LNHM82W88X632728",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 19,
+                    "vin": "2T1BR32E14C251159",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 20,
+                    "vin": "4T3B6RFV3NU097275",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 21,
+                    "vin": "5TDBK3EH1BS046097",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 22,
+                    "vin": "2G1WG5EK6B1145377",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 23,
+                    "vin": "2T3BF4DVXAW027580",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 24,
+                    "vin": "JTDZN3EU6C3066609",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 25,
+                    "vin": "WDDSJ4GB9GN389938",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 26,
+                    "vin": "JTEDW21AX60007321",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 27,
+                    "vin": "JTDBL40E099057052",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 28,
+                    "vin": "JTEDP21A340003329",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 29,
+                    "vin": "5FRYD4H29FB016825",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 30,
+                    "vin": "5J8TB4H59DL021482",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 31,
+                    "vin": "JF1GE6B61BG513438",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 32,
+                    "vin": "JTMDFREV5FD174401",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 33,
+                    "vin": "JTJHW31U360046402",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 34,
+                    "vin": "JTHKD5BH0B2033552",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 35,
+                    "vin": "5NPE34AF1FH252410",
+                    "reason": "Price is 0 (Warning)"
+                },
+                {
+                    "row": 36,
+                    "vin": "2T1BU4EE1BC717010",
+                    "reason": "Price is 0 (Warning)"
+                }
+            ]
+        },
+        "created_at": "2026-01-31 06:05:04.771345+00"
+    }
+]

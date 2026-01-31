@@ -35,26 +35,45 @@ export async function POST(request: Request) {
 
         console.log(`Received ${vehicles.length} vehicles for sync.`);
 
-        // 3. Sync Logic (Upsert based on VIN or Stock Number)
-        // For now, let's assume we are upserting. 
-        // real implementation depends on the CSV schema we decide on.
+        // 3. Sync Logic (Upsert based on VIN)
+        const dbVehicles = vehicles.map((v: any) => ({
+            vin: v.vin,
+            stock_number: v.stockNumber, // Map camelCase to snake_case
+            year: v.year,
+            make: v.make,
+            model: v.model,
+            price: v.price,
+            mileage: v.mileage,
+            body_type: v.bodyType || "Other", // Default if missing
+            fuel_type: v.fuelType || "Gasoline", // Default if missing
+            transmission: v.transmission || "Automatic", // Default if missing
+            image_url: v.image || null,
+            images: v.images || [],
+            description: v.description || "",
+            condition: v.mileage < 1000 ? "New" : "Used", // Simple logic, adjust as needed
+            status: "Available",
+            updated_at: new Date().toISOString()
+        }));
 
-        // Example:
-        // const { error } = await supabase
-        //   .from('vehicles')
-        //   .upsert(vehicles, { onConflict: 'vin' });
+        const { error: upsertError } = await supabase
+            .from('vehicles')
+            .upsert(dbVehicles, { onConflict: 'vin' });
+
+        if (upsertError) {
+            throw new Error(`Database Upsert Failed: ${upsertError.message}`);
+        }
 
         // 4. Log Success with Enhanced Details
         const meta = body.meta || {}; // Get V6 meta stats
 
         await supabase.from('sync_logs').insert({
             event_type: 'SYNC_SUCCESS',
-            message: `Processed ${vehicles.length} vehicles. (Skipped: ${meta.skipped_count || 0})`,
+            message: `Successfully synced ${vehicles.length} vehicles.`,
             details: {
                 count: vehicles.length,
                 skipped: meta.skipped_count || 0,
                 skipped_details: meta.skipped_details || [],
-                example_vin: vehicles[0]?.vin
+                upserted_count: dbVehicles.length
             }
         });
 
