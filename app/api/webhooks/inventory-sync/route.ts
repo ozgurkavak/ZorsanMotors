@@ -86,7 +86,7 @@ export async function POST(request: Request) {
             image_url: v.image || null,
             images: v.images || [],
             description: v.description || "",
-            condition: v.mileage < 1000 ? "New" : "Used", // Simple logic, adjust as needed
+            // condition: v.mileage < 1000 ? "New" : "Used", // Removed to fix DB Schema Error
             status: "Available",
             updated_at: new Date().toISOString()
         }));
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
 
         // 6. Send Critical Alert Email
         await sendEmail({
-            to: 'admin@zorsanmotors.com', // Or use env var
+            to: 'sales@zorsanmotors.com', // Updated to correct email
             subject: '🚨 CRITICAL: Inventory Sync Failed',
             html: `
             <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
