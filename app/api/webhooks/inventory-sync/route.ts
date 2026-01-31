@@ -25,6 +25,42 @@ export async function POST(request: Request) {
             if (error) console.error("Heartbeat error:", error);
             return NextResponse.json({ success: true, message: 'Heartbeat received' });
         }
+
+        // --- STATUS UPDATE (V7 Feature) ---
+        if (body.type === 'STATUS_UPDATE') {
+            const { status, message } = body;
+
+            // Log the status
+            await supabase.from('sync_logs').insert({
+                event_type: status === 'FAILED' ? 'SYNC_ERROR' : 'SYNC_STATUS',
+                message: message,
+                details: { status }
+            });
+
+            // Send Email on Failure
+            if (status === 'FAILED') {
+                await sendEmail({
+                    to: 'sales@zorsanmotors.com',
+                    subject: '🚨 URGENT: Inventory Sync Critical Failure',
+                    html: `
+                    <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h2 style="color: #ef4444;">Sync Operation Failed</h2>
+                        <p>The system has exhausted all retry attempts and failed to process the inventory file.</p>
+                        
+                        <div style="background: #fef2f2; padding: 15px; border-radius: 6px; border-left: 4px solid #ef4444; margin: 20px 0;">
+                            <strong>Error Details:</strong><br/>
+                            <code>${message}</code>
+                        </div>
+
+                        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                        <p>Please check the file on the FTP server manually.</p>
+                    </div>
+                `
+                });
+            }
+
+            return NextResponse.json({ success: true, message: 'Status recorded' });
+        }
         // -----------------------
 
         const { vehicles } = body;
