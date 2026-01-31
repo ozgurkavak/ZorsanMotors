@@ -11,7 +11,7 @@ from pyftpdlib.servers import FTPServer
 
 # Configuration
 FTP_USER = "dealercenter"
-FTP_PASS = "ZorSan2026!Upload"
+FTP_PASS = "AAaaRedDark4250"
 FTP_PORT = 21
 WEBHOOK_URL = "https://www.zorsanmotors.com/api/webhooks/inventory-sync"
 WEBHOOK_TOKEN = "zs-sync-2026-secure-x92" 
