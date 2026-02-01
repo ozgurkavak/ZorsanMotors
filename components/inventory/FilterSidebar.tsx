@@ -26,18 +26,18 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
     const [make, setMake] = useState(searchParams.get("make") || "all");
     const [bodyType, setBodyType] = useState(searchParams.get("bodyType") || "all");
     const [maxPrice, setMaxPrice] = useState([
-        Number(searchParams.get("maxPrice")) || 100000
+        Number(searchParams.get("maxPrice")) || 1000000
     ]);
     const [maxMileage, setMaxMileage] = useState([
-        Number(searchParams.get("maxMileage")) || 200000
+        Number(searchParams.get("maxMileage")) || 500000
     ]);
 
     const handleApply = () => {
         const params = new URLSearchParams();
         if (make && make !== "all") params.set("make", make);
         if (bodyType && bodyType !== "all") params.set("bodyType", bodyType);
-        if (maxPrice[0] < 100000) params.set("maxPrice", maxPrice[0].toString());
-        if (maxMileage[0] < 200000) params.set("maxMileage", maxMileage[0].toString());
+        if (maxPrice[0] < 1000000) params.set("maxPrice", maxPrice[0].toString());
+        if (maxMileage[0] < 500000) params.set("maxMileage", maxMileage[0].toString());
 
         router.push(`/inventory?${params.toString()}`);
     };
@@ -45,8 +45,8 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
     const handleReset = () => {
         setMake("all");
         setBodyType("all");
-        setMaxPrice([100000]);
-        setMaxMileage([200000]);
+        setMaxPrice([1000000]);
+        setMaxMileage([500000]);
         router.push("/inventory");
     };
 
@@ -104,8 +104,8 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
                 <Slider
                     value={maxPrice}
                     onValueChange={setMaxPrice}
-                    max={100000}
-                    step={1000}
+                    max={1000000}
+                    step={5000}
                 />
             </div>
 
@@ -119,7 +119,7 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
                 <Slider
                     value={maxMileage}
                     onValueChange={setMaxMileage}
-                    max={200000}
+                    max={500000}
                     step={5000}
                 />
             </div>

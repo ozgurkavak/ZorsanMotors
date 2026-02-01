@@ -15,8 +15,8 @@ function InventoryContent() {
 
     const make = searchParams.get('make') || 'all';
     const bodyType = searchParams.get('bodyType') || 'all';
-    const maxPrice = searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : 100000;
-    const maxMileage = searchParams.get('maxMileage') ? parseInt(searchParams.get('maxMileage')!) : 200000;
+    const maxPrice = searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : 1000000;
+    const maxMileage = searchParams.get('maxMileage') ? parseInt(searchParams.get('maxMileage')!) : 500000;
 
     const filteredVehicles = vehicles.filter((vehicle) => {
         const matchesMake = make === 'all' || vehicle.make === make;
