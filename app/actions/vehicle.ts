@@ -53,8 +53,8 @@ export async function updateVehicleAction(id: string, updates: Partial<Vehicle>)
     if (updates.make) dbUpdates.make = updates.make;
     if (updates.model) dbUpdates.model = updates.model;
     if (updates.year) dbUpdates.year = updates.year;
-    if (updates.price) dbUpdates.price = updates.price;
-    if (updates.mileage) dbUpdates.mileage = updates.mileage;
+    if (updates.price !== undefined) dbUpdates.price = updates.price;
+    if (updates.mileage !== undefined) dbUpdates.mileage = updates.mileage;
     if (updates.vin) dbUpdates.vin = updates.vin;
     if (updates.status) dbUpdates.status = updates.status;
     if (updates.image) dbUpdates.image_url = updates.image;
@@ -63,6 +63,12 @@ export async function updateVehicleAction(id: string, updates: Partial<Vehicle>)
     if (updates.exteriorColor) dbUpdates.exterior_color = updates.exteriorColor;
     if (updates.interiorColor) dbUpdates.interior_color = updates.interiorColor;
     if (updates.images) dbUpdates.images = updates.images;
+
+    // DMS Fields
+    if (updates.purchasePrice !== undefined) dbUpdates.purchase_price = updates.purchasePrice;
+    if (updates.salePrice !== undefined) dbUpdates.sale_price = updates.salePrice;
+    if (updates.soldDate !== undefined) dbUpdates.sold_date = updates.soldDate;
+    if (updates.stockNumber) dbUpdates.stock_number = updates.stockNumber;
     // Add others as needed
 
     const { error } = await supabaseAdmin

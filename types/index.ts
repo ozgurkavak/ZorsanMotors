@@ -19,6 +19,23 @@ export interface Vehicle {
   images?: string[];
   stockNumber?: string;
   createdAt?: string;
+
+  // DMS / Accounting Fields
+  purchasePrice?: number;
+  salePrice?: number;
+  auctionName?: string;
+  soldDate?: string;
+  consignment?: boolean;
+  expenses?: Expense[];
+}
+
+export interface Expense {
+  id: string;
+  vehicleId: string;
+  expenseType: string;
+  amount: number;
+  description?: string;
+  date: string;
 }
 
 export interface FinancingLead {

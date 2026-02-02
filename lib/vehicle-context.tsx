@@ -11,6 +11,7 @@ interface VehicleContextType {
     addVehicle: (vehicle: Vehicle) => Promise<void>;
     deleteVehicle: (id: string) => Promise<void>;
     updateVehicle: (id: string, updates: Partial<Vehicle>) => Promise<void>;
+    refreshVehicles: () => Promise<void>;
 }
 
 const VehicleContext = createContext<VehicleContextType | undefined>(undefined);
@@ -25,7 +26,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
     const fetchVehicles = async () => {
         const { data, error } = await supabase
             .from('vehicles')
-            .select('*')
+            .select('*, expenses(*)')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -54,7 +55,14 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
                 carfaxUrl: v.carfax_url || `/carfax-report/${v.id}`,
                 status: v.status,
                 stockNumber: v.stock_number,
-                createdAt: v.created_at
+                createdAt: v.created_at,
+                // DMS Fields
+                purchasePrice: v.purchase_price,
+                salePrice: v.sale_price,
+                auctionName: v.auction_name,
+                soldDate: v.sold_date,
+                consignment: v.consignment,
+                expenses: v.expenses,
             }));
             setVehicles(mappedVehicles);
         }
@@ -113,7 +121,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <VehicleContext.Provider value={{ vehicles, addVehicle, deleteVehicle, updateVehicle }}>
+        <VehicleContext.Provider value={{ vehicles, addVehicle, deleteVehicle, updateVehicle, refreshVehicles: fetchVehicles }}>
             {children}
         </VehicleContext.Provider>
     );

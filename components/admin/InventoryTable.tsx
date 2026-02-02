@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, DollarSign, MoreHorizontal, Search } from "lucide-react";
 import { useState } from "react";
 import {
     AlertDialog,
@@ -31,18 +31,18 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
 
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { Vehicle } from "@/types";
-
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { ExpenseManager } from "./ExpenseManager";
 
 export function InventoryTable({ limit }: { limit?: number }) {
     const { vehicles, deleteVehicle, updateVehicle } = useVehicles();
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+    const [managingVehicle, setManagingVehicle] = useState<Vehicle | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
 
     // Filter and Limit
@@ -65,15 +65,6 @@ export function InventoryTable({ limit }: { limit?: number }) {
 
     const handleStatusChange = async (id: string, newStatus: string) => {
         await updateVehicle(id, { status: newStatus });
-    };
-
-    const getStatusColor = (status?: string) => {
-        switch (status) {
-            case 'Available': return 'default'; // Black/Primary
-            case 'Reserved': return 'warning'; // Orange/Yellow (Need a variant, usually secondary or outline works)
-            case 'Sold': return 'destructive'; // Red
-            default: return 'secondary';
-        }
     };
 
     return (
@@ -102,8 +93,9 @@ export function InventoryTable({ limit }: { limit?: number }) {
                             {!limit && <TableHead>Image</TableHead>}
                             <TableHead>Stock #</TableHead>
                             <TableHead>Vehicle</TableHead>
-                            <TableHead>Date Listed</TableHead>
-                            <TableHead>VIN</TableHead>
+                            {!limit && <TableHead>Purchase</TableHead>}
+                            {!limit && <TableHead>Cost</TableHead>}
+                            {!limit && <TableHead>Profit</TableHead>}
                             <TableHead>Price</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -112,72 +104,94 @@ export function InventoryTable({ limit }: { limit?: number }) {
                     <TableBody>
                         {displayedVehicles.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={limit ? 7 : 8} className="h-24 text-center">
+                                <TableCell colSpan={limit ? 7 : 10} className="h-24 text-center">
                                     No vehicles found.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            displayedVehicles.map((vehicle) => (
-                                <TableRow key={vehicle.id}>
-                                    {!limit && (
-                                        <TableCell>
-                                            <div className="h-16 w-24 rounded overflow-hidden">
-                                                <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover object-center" />
-                                            </div>
+                            displayedVehicles.map((vehicle) => {
+                                const purchase = vehicle.purchasePrice || 0;
+                                const expenses = vehicle.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+                                const totalCost = purchase + expenses;
+                                const sale = vehicle.salePrice || 0;
+                                const profit = sale - totalCost;
+
+                                return (
+                                    <TableRow key={vehicle.id}>
+                                        {!limit && (
+                                            <TableCell>
+                                                <div className="h-12 w-20 rounded overflow-hidden bg-muted">
+                                                    {vehicle.image && <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover object-center" />}
+                                                </div>
+                                            </TableCell>
+                                        )}
+                                        <TableCell className="font-mono font-medium text-xs">
+                                            {vehicle.stockNumber || "-"}
                                         </TableCell>
-                                    )}
-                                    <TableCell className="font-mono font-medium text-xs">
-                                        {vehicle.stockNumber || "-"}
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {vehicle.year} {vehicle.make} {vehicle.model}
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">
-                                        {vehicle.createdAt ? new Date(vehicle.createdAt).toLocaleDateString() : "-"}
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs">{vehicle.vin}</TableCell>
-                                    <TableCell>${vehicle.price.toLocaleString()}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={vehicle.status === 'Available' ? 'default' : vehicle.status === 'Sold' ? 'destructive' : 'secondary'}>
-                                            {vehicle.status || 'Available'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Open menu</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(vehicle.id)}>
-                                                    Copy ID
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => setEditingVehicle(vehicle)}>
-                                                    Edit Details
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Available')}>
-                                                    Mark as Available
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Reserved')}>
-                                                    Mark as Reserved
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Sold')}>
-                                                    Mark as Sold
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
-                                                    Delete Vehicle
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                                        <TableCell className="font-medium">
+                                            {vehicle.year} {vehicle.make} {vehicle.model}
+                                        </TableCell>
+
+                                        {!limit && (
+                                            <>
+                                                <TableCell className="text-xs text-muted-foreground">
+                                                    ${purchase.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell className="text-xs font-medium">
+                                                    ${totalCost.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell className={`text-xs font-bold ${profit >= 0 && sale > 0 ? 'text-green-600' : (sale > 0 && profit < 0) ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                                    {sale > 0 ? `$${profit.toLocaleString()}` : '-'}
+                                                </TableCell>
+                                            </>
+                                        )}
+
+                                        <TableCell>${vehicle.price.toLocaleString()}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={vehicle.status === 'Available' ? 'default' : vehicle.status === 'Sold' ? 'destructive' : 'secondary'}>
+                                                {vehicle.status || 'Available'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <span className="sr-only">Open menu</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => setManagingVehicle(vehicle)}>
+                                                        <DollarSign className="w-4 h-4 mr-2" />
+                                                        Financials & Expenses
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => setEditingVehicle(vehicle)}>
+                                                        <Edit2 className="w-4 h-4 mr-2" />
+                                                        Edit Details
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Available')}>
+                                                        Mark as Available
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Reserved')}>
+                                                        Mark as Reserved
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Sold')}>
+                                                        Mark as Sold
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        Delete Vehicle
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })
                         )}
                     </TableBody>
                 </Table>
@@ -203,6 +217,18 @@ export function InventoryTable({ limit }: { limit?: number }) {
                 open={!!editingVehicle}
                 onOpenChange={(open) => !open && setEditingVehicle(null)}
             />
+
+            <Sheet open={!!managingVehicle} onOpenChange={(open) => !open && setManagingVehicle(null)}>
+                <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+                    <SheetHeader className="mb-6">
+                        <SheetTitle>Financial Management</SheetTitle>
+                        <SheetDescription>
+                            {managingVehicle?.year} {managingVehicle?.make} {managingVehicle?.model} ({managingVehicle?.stockNumber})
+                        </SheetDescription>
+                    </SheetHeader>
+                    {managingVehicle && <ExpenseManager vehicle={managingVehicle} />}
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

@@ -10,12 +10,14 @@ import {
     Settings,
     LogOut,
     PlusCircle,
-    Activity
+    Activity,
+    DollarSign
 } from "lucide-react";
 
 const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, href: "/zm-console" },
     { title: "Inventory", icon: Car, href: "/zm-console/inventory" },
+    { title: "Financials", icon: DollarSign, href: "/zm-console/finance" },
     { title: "Sync Logs", icon: Activity, href: "/zm-console/logs" },
     { title: "Settings", icon: Settings, href: "/zm-console/settings" },
 ];
