@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ExpenseManager } from "@/components/admin/ExpenseManager";
+import { StatusSelector } from "./StatusSelector";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -254,9 +255,7 @@ export function FinanceTable() {
                                         </TableCell>
 
                                         <TableCell className="border-r border-border/50">
-                                            <Badge variant={vehicle.status === 'Available' ? 'default' : vehicle.status === 'Sold' ? 'destructive' : 'secondary'}>
-                                                {vehicle.status || 'Available'}
-                                            </Badge>
+                                            <StatusSelector vehicle={vehicle} />
                                         </TableCell>
 
                                         {/* Editable Purchase Price */}

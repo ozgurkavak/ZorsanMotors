@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { EditVehicleDialog } from "./EditVehicleDialog";
+import { StatusSelector } from "./StatusSelector";
 import { Vehicle } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -63,9 +64,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
         }
     };
 
-    const handleStatusChange = async (id: string, newStatus: string) => {
-        await updateVehicle(id, { status: newStatus });
-    };
+
 
     return (
         <div className="rounded-xl border bg-card shadow-sm">
@@ -113,7 +112,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                 const purchase = vehicle.purchasePrice || 0;
                                 const expenses = vehicle.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
                                 const totalCost = purchase + expenses;
-                                const sale = vehicle.salePrice || 0;
+                                const sale = vehicle.price || 0;
                                 const profit = sale - totalCost;
 
                                 return (
@@ -148,9 +147,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
 
                                         <TableCell>${vehicle.price.toLocaleString()}</TableCell>
                                         <TableCell>
-                                            <Badge variant={vehicle.status === 'Available' ? 'default' : vehicle.status === 'Sold' ? 'destructive' : 'secondary'}>
-                                                {vehicle.status || 'Available'}
-                                            </Badge>
+                                            <StatusSelector vehicle={vehicle} />
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
@@ -170,17 +167,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                                         <Edit2 className="w-4 h-4 mr-2" />
                                                         Edit Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Available')}>
-                                                        Mark as Available
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Reserved')}>
-                                                        Mark as Reserved
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(vehicle.id, 'Sold')}>
-                                                        Mark as Sold
-                                                    </DropdownMenuItem>
+
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
                                                         <Trash2 className="w-4 h-4 mr-2" />
