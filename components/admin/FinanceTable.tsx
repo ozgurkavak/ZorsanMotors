@@ -109,6 +109,14 @@ export function FinanceTable() {
         return { purchase, expenses, totalCost, sale, profit };
     }
 
+    const handleUpdateString = async (id: string, field: keyof Vehicle, value: string) => {
+        try {
+            await updateVehicle(id, { [field]: value });
+        } catch (e) {
+            console.error("Failed to update string", e);
+        }
+    };
+
     const handleUpdatePrice = async (id: string, field: 'purchasePrice' | 'price', value: string) => {
         const numValue = parseFloat(value);
         if (isNaN(numValue)) return;
@@ -250,8 +258,13 @@ export function FinanceTable() {
                                             <ExternalLink className="w-3 h-3 opacity-50" />
                                         </TableCell>
 
-                                        <TableCell className="text-muted-foreground text-xs border-r border-border/50">
-                                            {vehicle.auctionName || "-"}
+                                        <TableCell className="text-muted-foreground text-xs border-r border-border/50 p-0">
+                                            <Input
+                                                className="h-full px-2 text-center bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none w-full text-xs"
+                                                defaultValue={vehicle.auctionName || ""}
+                                                placeholder="-"
+                                                onBlur={(e) => handleUpdateString(vehicle.id, 'auctionName', e.target.value)}
+                                            />
                                         </TableCell>
 
                                         <TableCell className="border-r border-border/50">
