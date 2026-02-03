@@ -1,27 +1,29 @@
 # DMS Implementation Status
 
-## Completed Tasks
-- [x] **FTP Server (V6.1 FIX)**: 
-    - **Status**: FIXED & RUNNING LOCALLY.
-    - **Code**: Pushed to GitHub.
-    - **Features**: Threaded Server, Async Processing, Deps check.
-- [x] **Finance Dashboard**: 
-    - **Visuals**: Vertical Inventory Status, Rich Stats Cards.
-- [x] **Email Archiving**:
-    - **System**: Created `email_archive/` and added to `.gitignore`.
-    - **Records**: Archived original questionnaire and drafted reply to Julius.
+## ✅ Completed Tasks
+- [x] **FTP Server (V6.1)**:
+    - **Status**: Running on Hetzner (5.78.96.33).
+    - **Features**: Threaded, Async, Backup to `processed_backups`.
+- [x] **Inventory Sync (V2.0)**:
+    - **Logic**: Snapshot Strategy implemented.
+    - **Detection**: Automatically marks missing vehicles as **Sold**.
+    - **Safety**: Guard against empty file updates (< 5 vehicles).
+- [x] **Admin Dashboard**:
+    - **Financials**: Unified `price` field (Removed redundant `sale_price`).
+    - **Inventory**: Added **Tabs** (Active Inventory / Sold Log).
+    - **Actions**: Streamlined Status changing via Dropdown.
+- [x] **Public Website**:
+    - **Filtering**: Automatically hides vehicles with "Sold" status.
+- [x] **DMS Core**:
+    - **Database**: Cleaned up schema (Unified pricing columns).
+    - **Backups**: Local `server_backups` folder organized.
 
-## Production Deployment Instructions (SSH)
-To update the live server (Hetzner):
+## 🚀 Deployment Instructions (FTP Trigger)
+To re-run the sync logic manually on the server (e.g. for testing):
 ```bash
-cd /root/ZorSanMotors
-git pull
-pip3 install requests pyftpdlib
-cp scripts/ftp_bridge_v6.py /root/ftp_bridge.py
-systemctl restart zorsan-ftp
+ssh root@5.78.96.33 "cp /root/processed_backups/LATEST_FILE.csv /root/DealerCenter_Retrigger.csv"
 ```
 
-## Reminders / Next Steps
-- [ ] **Send Email**: Send the drafted reply (`email_archive/2026-02-03_DealerCenter_Reply_Draft.txt`) to Julius Pascua.
-- [ ] **Verify Connection**: After sending, check FTP logs periodically to confirm DealerCenter's successful connection.
-    - Command: `journalctl -u zorsan-ftp | grep "logged in"`
+## 📝 Next Steps
+- [ ] **Send Email**: Send the drafted reply to Julius (DealerCenter) confirming integration.
+- [ ] **Monitor**: Watch "Sold Log" to ensure the 3 missing vehicles appear correctly.
