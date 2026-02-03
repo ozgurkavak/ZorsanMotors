@@ -100,6 +100,44 @@ export async function POST(request: Request) {
             throw new Error(`Database Upsert Failed: ${upsertError.message}`);
         }
 
+
+
+        // 3.5. Mark Missing Vehicles as 'Sold' (Snapshot Strategy)
+        // Only run this logic if we received a reasonable amount of data (Safety Guard)
+        if (vehicles.length >= 5) {
+            try {
+                const incomingVins = vehicles.map((v: any) => v.vin);
+
+                // Fetch currently available VINs
+                const { data: availableVehicles } = await supabase
+                    .from('vehicles')
+                    .select('vin')
+                    .eq('status', 'Available');
+
+                if (availableVehicles) {
+                    const missingVins = availableVehicles
+                        .map(v => v.vin)
+                        .filter(vin => !incomingVins.includes(vin));
+
+                    if (missingVins.length > 0) {
+                        console.log(`Snapshot Sync: Marking ${missingVins.length} vehicles as Sold (Missing from Feed).`);
+
+                        await supabase
+                            .from('vehicles')
+                            .update({
+                                status: 'Sold',
+                                sold_date: new Date().toISOString()
+                            })
+                            .in('vin', missingVins);
+                    }
+                }
+            } catch (soldLogicError) {
+                console.error("Critical error in Sold Logic:", soldLogicError);
+            }
+        } else {
+            console.warn("Skipping 'Sold' detection: Feed contains fewer than 5 vehicles. Potential feed error.");
+        }
+
         // 4. Log Success with Enhanced Details
         const meta = body.meta || {}; // Get V6 meta stats
 

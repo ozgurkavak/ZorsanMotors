@@ -23,7 +23,8 @@ function InventoryContent() {
         const matchesBody = bodyType === 'all' || vehicle.bodyType === bodyType;
         const matchesPrice = vehicle.price <= maxPrice;
         const matchesMileage = vehicle.mileage <= maxMileage;
-        return matchesMake && matchesBody && matchesPrice && matchesMileage;
+        const isNotSold = vehicle.status !== 'Sold';
+        return matchesMake && matchesBody && matchesPrice && matchesMileage && isNotSold;
     });
 
     const uniqueMakes = Array.from(new Set(vehicles.map((v) => v.make))).sort();

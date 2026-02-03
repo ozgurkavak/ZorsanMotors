@@ -31,6 +31,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { StatusSelector } from "./StatusSelector";
@@ -45,6 +46,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
     const [managingVehicle, setManagingVehicle] = useState<Vehicle | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeTab, setActiveTab] = useState("active");
 
     // Filter and Limit
     const displayedVehicles = vehicles
@@ -54,6 +56,18 @@ export function InventoryTable({ limit }: { limit?: number }) {
             const stock = v.stockNumber?.toLowerCase() || "";
             const title = `${v.make} ${v.model} ${v.year}`.toLowerCase();
             return stock.includes(term) || title.includes(term);
+        })
+        .filter(v => {
+            if (limit) return v.status !== 'Sold'; // Widget shows only active
+            if (activeTab === 'sold') return v.status === 'Sold';
+            return v.status !== 'Sold'; // Active tab
+        })
+        .sort((a, b) => {
+            // Sort Sold items by Sold Date (desc) if available, else standard
+            if (activeTab === 'sold' && a.soldDate && b.soldDate) {
+                return new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime();
+            }
+            return 0; // Keep default sort from context or implement basic recent sort
         })
         .slice(0, limit || vehicles.length);
 
@@ -73,7 +87,15 @@ export function InventoryTable({ limit }: { limit?: number }) {
                     <h3 className="text-lg font-semibold">{limit ? "Recent Listings" : "Inventory Management"}</h3>
                     <p className="text-sm text-muted-foreground">{limit ? "Latest additions to your fleet." : "Manage all vehicles."}</p>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                    {!limit && (
+                        <Tabs value={activeTab} onValueChange={setActiveTab}>
+                            <TabsList>
+                                <TabsTrigger value="active">Active Inventory</TabsTrigger>
+                                <TabsTrigger value="sold">Sold Log</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    )}
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
