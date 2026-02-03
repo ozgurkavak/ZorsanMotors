@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 type SortConfig = {
-    key: 'purchase' | 'sale' | null;
+    key: 'purchase' | 'price' | null;
     direction: 'asc' | 'desc' | 'default';
 };
 
@@ -42,11 +42,11 @@ export function FinanceTable() {
     // Column Widths
     const [colWidths, setColWidths] = useState({
         purchase: 140,
-        sale: 140
+        price: 140
     });
 
     // Resize Logic
-    const [resizing, setResizing] = useState<{ col: 'purchase' | 'sale', startX: number, startWidth: number } | null>(null);
+    const [resizing, setResizing] = useState<{ col: 'purchase' | 'price', startX: number, startWidth: number } | null>(null);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -84,8 +84,8 @@ export function FinanceTable() {
         .sort((a, b) => {
             // Custom Sorting for Purchase & Sale
             if (sortConfig.key && sortConfig.direction !== 'default') {
-                const valA = sortConfig.key === 'purchase' ? (a.purchasePrice || 0) : (a.salePrice || 0);
-                const valB = sortConfig.key === 'purchase' ? (b.purchasePrice || 0) : (b.salePrice || 0);
+                const valA = sortConfig.key === 'purchase' ? (a.purchasePrice || 0) : (a.price || 0);
+                const valB = sortConfig.key === 'purchase' ? (b.purchasePrice || 0) : (b.price || 0);
 
                 if (sortConfig.direction === 'asc') return valA - valB;
                 if (sortConfig.direction === 'desc') return valB - valA;
@@ -103,12 +103,12 @@ export function FinanceTable() {
         const purchase = vehicle.purchasePrice || 0;
         const expenses = vehicle.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
         const totalCost = purchase + expenses;
-        const sale = vehicle.salePrice || 0;
+        const sale = vehicle.price || 0;
         const profit = sale - totalCost;
         return { purchase, expenses, totalCost, sale, profit };
     }
 
-    const handleUpdatePrice = async (id: string, field: 'purchasePrice' | 'salePrice', value: string) => {
+    const handleUpdatePrice = async (id: string, field: 'purchasePrice' | 'price', value: string) => {
         const numValue = parseFloat(value);
         if (isNaN(numValue)) return;
 
@@ -121,7 +121,7 @@ export function FinanceTable() {
     };
 
     // Helper for Sort Header
-    const SortableHeader = ({ title, colKey }: { title: string, colKey: 'purchase' | 'sale' }) => {
+    const SortableHeader = ({ title, colKey }: { title: string, colKey: 'purchase' | 'price' }) => {
         const currentSort = sortConfig.key === colKey ? sortConfig.direction : 'default';
 
         return (
@@ -215,9 +215,9 @@ export function FinanceTable() {
                             <TableHead className="min-w-[120px] text-right border-r border-border/50">Total Cost</TableHead>
 
                             {/* Sale Column */}
-                            <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.sale }}>
+                            <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.price }}>
                                 <div className="h-12 flex items-center justify-end">
-                                    <SortableHeader title="Sale Price" colKey="sale" />
+                                    <SortableHeader title="Sale Price" colKey="price" />
                                 </div>
                             </TableHead>
 
@@ -294,7 +294,7 @@ export function FinanceTable() {
                                                     style={{ width: '100%' }}
                                                     defaultValue={sale > 0 ? sale : ""}
                                                     placeholder="-"
-                                                    onBlur={(e) => handleUpdatePrice(vehicle.id, 'salePrice', e.target.value)}
+                                                    onBlur={(e) => handleUpdatePrice(vehicle.id, 'price', e.target.value)}
                                                 />
                                             </div>
                                         </TableCell>

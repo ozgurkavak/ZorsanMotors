@@ -43,3 +43,9 @@ next-env.d.ts
 # Documentation & Drafts
 vendor_email_draft.txt
 scripts/deploy_service.sh
+
+# Email Archives (Private)
+email_archive/
+
+# Server Backups
+server_backup_*/
