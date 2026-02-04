@@ -16,7 +16,7 @@
     - **Filtering**: Automatically hides vehicles with "Sold" status.
 - [x] **DMS Core**:
     - **Database**: Cleaned up schema (Unified pricing columns).
-    - **Backups**: Local `server_backups` folder organized.
+    - **Backups**: Local `ftp_server` folder organized.
 
 ## 🚀 Deployment Instructions (FTP Trigger)
 To re-run the sync logic manually on the server (e.g. for testing):

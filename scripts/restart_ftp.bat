@@ -2,5 +2,5 @@
 echo Stopping existing Python FTP processes...
 taskkill /F /IM python.exe /T
 echo Starting FTP Server V6.1...
-start /B python scripts/ftp_bridge_v6.py > ftp_server.log 2>&1
-echo FTP Server restarted in background. Check ftp_server.log for details.
+start /B python scripts/ftp_bridge_v6.py > ftp_server\ftp_server.log 2>&1
+echo FTP Server restarted in background. Check ftp_server\ftp_server.log for details.

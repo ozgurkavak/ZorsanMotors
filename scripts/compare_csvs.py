@@ -3,7 +3,7 @@ import sys
 import os
 
 # Paths (Relative to scripts/ execution)
-BASE_DIR = r"C:\Users\TR\Desktop\ZorSan Motors\server_backups\server_backup_20260203_AfterSync"
+BASE_DIR = r"C:\Users\TR\Desktop\ZorSan Motors\ftp_server\server_backup_20260203_AfterSync"
 OLD_FILE = os.path.join(BASE_DIR, "DealerCenter_Final.csv")
 # Find the new file dynamically or hardcode if known from previous step
 # The user output showed: DealerCenter_20260202_29009352.csv

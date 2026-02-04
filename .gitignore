@@ -47,5 +47,5 @@ scripts/deploy_service.sh
 # Email Archives (Private)
 email_archive/
 
-# Server Backups
-server_backup_*/
+# Server Backups & Logs
+ftp_server/
