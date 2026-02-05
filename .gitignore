@@ -43,6 +43,7 @@ next-env.d.ts
 # Documentation & Drafts
 vendor_email_draft.txt
 scripts/deploy_service.sh
+scripts/ftp_bridge*.py
 
 # Email Archives (Private)
 email_archive/

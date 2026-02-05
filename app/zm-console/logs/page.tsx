@@ -16,6 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { SyncLogItem } from "@/components/admin/SyncLogItem";
 
 // Since we are in a server component, we can fetch directly
 async function getLogs() {
@@ -103,33 +104,7 @@ export default async function SyncLogsPage() {
                                 </TableRow>
                             )}
                             {logs.map((log) => (
-                                <TableRow key={log.id}>
-                                    <TableCell>
-                                        {log.event_type === 'SYNC_SUCCESS' && (
-                                            <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                        )}
-                                        {log.event_type === 'SYNC_ERROR' && (
-                                            <XCircle className="h-5 w-5 text-red-500" />
-                                        )}
-                                        {!['SYNC_SUCCESS', 'SYNC_ERROR'].includes(log.event_type) && (
-                                            <AlertCircle className="h-5 w-5 text-blue-500" />
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={log.event_type === 'SYNC_ERROR' ? 'destructive' : 'secondary'}>
-                                            {log.event_type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {log.message}
-                                    </TableCell>
-                                    <TableCell className="max-w-[300px] truncate text-muted-foreground text-sm font-mono">
-                                        {JSON.stringify(log.details)}
-                                    </TableCell>
-                                    <TableCell className="text-right text-muted-foreground">
-                                        {new Date(log.created_at).toLocaleString()}
-                                    </TableCell>
-                                </TableRow>
+                                <SyncLogItem key={log.id} log={log} />
                             ))}
                         </TableBody>
                     </Table>

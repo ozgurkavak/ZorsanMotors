@@ -2,15 +2,19 @@
 DROP VIEW IF EXISTS vehicle_financial_summary;
 
 -- 2. Migrate existing sale_price data to price if price is missing
+-- (Just in case some data exists only in sale_price)
 UPDATE vehicles
 SET price = sale_price
 WHERE price IS NULL AND sale_price IS NOT NULL;
 
--- 3. Drop the redundant column
+-- 3. Drop the redundant column from the main table
 ALTER TABLE vehicles DROP COLUMN sale_price;
 
--- 4. Recreate the View using 'price' as the Sale Price
-CREATE OR REPLACE VIEW vehicle_financial_summary AS
+-- 4. Recreate the View
+-- WITH (security_invoker = true) ensures the view respects the RLS policies of the underlying 'vehicles' table.
+CREATE OR REPLACE VIEW vehicle_financial_summary 
+WITH (security_invoker = true) 
+AS
 SELECT 
     v.id,
     v.vin,
@@ -18,7 +22,7 @@ SELECT
     v.model,
     v.status,
     v.purchase_price,
-    v.price as sale_price, -- Mapping price as sale_price for consistency in queries
+    v.price as sale_price, -- Here we map 'price' to show up as 'sale_price' for compatibility
     COALESCE(SUM(e.amount), 0) as total_expenses,
     (COALESCE(v.purchase_price, 0) + COALESCE(SUM(e.amount), 0)) as total_cost,
     (v.price - (COALESCE(v.purchase_price, 0) + COALESCE(SUM(e.amount), 0))) as profit

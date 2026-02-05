@@ -103,6 +103,7 @@ export async function POST(request: Request) {
 
 
         // 3.5. Mark Missing Vehicles as 'Sold' (Snapshot Strategy)
+        let soldCount = 0;
         // Only run this logic if we received a reasonable amount of data (Safety Guard)
         if (vehicles.length >= 5) {
             try {
@@ -120,7 +121,8 @@ export async function POST(request: Request) {
                         .filter(vin => !incomingVins.includes(vin));
 
                     if (missingVins.length > 0) {
-                        console.log(`Snapshot Sync: Marking ${missingVins.length} vehicles as Sold (Missing from Feed).`);
+                        soldCount = missingVins.length;
+                        console.log(`Snapshot Sync: Marking ${soldCount} vehicles as Sold (Missing from Feed).`);
 
                         await supabase
                             .from('vehicles')
@@ -143,16 +145,25 @@ export async function POST(request: Request) {
 
         await supabase.from('sync_logs').insert({
             event_type: 'SYNC_SUCCESS',
-            message: `Successfully synced ${vehicles.length} vehicles.`,
+            message: `Synced ${vehicles.length} active, Marked ${soldCount} sold.`,
             details: {
-                count: vehicles.length,
-                skipped: meta.skipped_count || 0,
+                processed_count: vehicles.length,
+                sold_count: soldCount,
+                upserted_count: dbVehicles.length,
+                skipped_count: meta.skipped_count || 0,
                 skipped_details: meta.skipped_details || [],
-                upserted_count: dbVehicles.length
             }
         });
 
-        return NextResponse.json({ success: true, message: `Processed ${vehicles.length} vehicles.` });
+        return NextResponse.json({
+            success: true,
+            message: `Processed ${vehicles.length} vehicles. Sold: ${soldCount}`,
+            stats: {
+                processed: vehicles.length,
+                sold: soldCount,
+                skipped: meta.skipped_count || 0
+            }
+        });
 
     } catch (error: any) {
         console.error('Inventory Sync Error:', error);
