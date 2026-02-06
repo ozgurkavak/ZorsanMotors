@@ -226,7 +226,7 @@ export function FinanceTable() {
                             {/* Sale Column */}
                             <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.price }}>
                                 <div className="h-12 flex items-center justify-end">
-                                    <SortableHeader title="Sale Price" colKey="price" />
+                                    <SortableHeader title="Price" colKey="price" />
                                 </div>
                             </TableHead>
 
