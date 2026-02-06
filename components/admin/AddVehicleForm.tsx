@@ -146,7 +146,7 @@ export function AddVehicleForm() {
                 interiorColor: "Black",
                 image: imageUrls.length > 0 ? imageUrls[0] : "", // Primary
                 images: imageUrls, // All images
-                features: data.features ? data.features.join(', ') : "", // Convert array to string
+                features: data.features || [], // Pass array directly
                 carfaxUrl: "#",
                 status: data.status
             };

@@ -125,16 +125,13 @@ export default function CarPage({ params }: CarPageProps) {
 
                     <div className="space-y-2">
                         <h3 className="font-semibold">Vehicle Features</h3>
-                        {vehicle.features ? (
+                        {vehicle.features && vehicle.features.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {vehicle.features.length > 50 && vehicle.features.includes("  ")
-                                    ? vehicle.features.split("  ").filter(f => f.trim().length > 2).map((feature, i) => (
-                                        <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> {feature.trim()}
-                                        </div>
-                                    ))
-                                    : <p className="text-sm text-muted-foreground">{vehicle.features}</p>
-                                }
+                                {vehicle.features.map((feature, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> {feature}
+                                    </div>
+                                ))}
                             </div>
                         ) : (
                             <p className="text-sm text-muted-foreground italic">No features listed.</p>

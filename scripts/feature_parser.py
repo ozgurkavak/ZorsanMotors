@@ -66,7 +66,7 @@ def generate_features_from_raw(raw_text):
              return raw_text.strip()
         return ""
 
-    return ", ".join(found_features)
+    return found_features
 
 # Test execution (if run directly)
 if __name__ == "__main__":

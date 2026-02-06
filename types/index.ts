@@ -13,7 +13,7 @@ export interface Vehicle {
   condition: "Used" | "Certified Pre-Owned";
   exteriorColor: string;
   interiorColor: string;
-  features?: string; // Changed from string[] to string
+  features?: string[]; // Changed from string[] to string
   carfaxUrl?: string;
   status?: string; // Added to match DB
   images?: string[];
