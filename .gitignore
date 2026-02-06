@@ -44,6 +44,8 @@ next-env.d.ts
 vendor_email_draft.txt
 scripts/deploy_service.sh
 scripts/.env
+scripts/ftp_bridge*.py
+!scripts/ftp_bridge_v7.py
 
 # Email Archives (Private)
 email_archive/

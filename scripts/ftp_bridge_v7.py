@@ -15,7 +15,10 @@ from pyftpdlib.servers import ThreadedFTPServer
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Configuration
-FTP_USER = os.getenv("FTP_USER", "dealercenter")
+FTP_USER = os.getenv("FTP_USER")
+if not FTP_USER:
+    raise ValueError("FTP_USER not found in environment variables.")
+
 FTP_PASS = os.getenv("FTP_PASS")
 if not FTP_PASS:
     raise ValueError("FTP_PASS not found in environment variables. Please check .env file.")
