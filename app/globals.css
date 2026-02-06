@@ -160,6 +160,22 @@
   body {
     @apply bg-background text-foreground cursor-default;
   }
+
+  /* UX Improvements */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    cursor: text;
+  }
+
+  button,
+  a,
+  [role="button"],
+  label,
+  select,
+  .cursor-pointer {
+    cursor: pointer;
+  }
 }
 
 @media print {

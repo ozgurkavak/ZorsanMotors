@@ -9,9 +9,9 @@
 ---
 
 ## 🛠️ 2. Hata Düzeltmeleri ve UI İyileştirmeleri (Genel)
-- [ ] **UX (İmleç):** Site genelindeki yazılı alanlarda tıklayınca imlecin yanıp sönmesi (text-cursor) kaldırılacak (`cursor-default`).
-- [ ] **Görsel:** Inventory Status bölümündeki renk paleti düzenlenecek.
-- [ ] **UI:** Finance Tablosundaki "Sale Price" başlığı "Price" olarak düzeltilecek.
+- [x] **UX (İmleç):** Site genelindeki yazılı alanlarda tıklayınca imlecin yanıp sönmesi kaldırıldı (`cursor-default`), inputlar düzeltildi.
+- [x] **Görsel:** Inventory Status renk paleti modern (soft/glass) stilde güncellendi.
+- [x] **UI:** Finance Tablosundaki başlıklar ve görünümler iyileştirildi.
 - [x] **Bug (Hesaplama):** Total Inventory Cost güncelleme hatası giderilecek.
 - [x] **Bug (Hesaplama):** Total Sales güncelleme hatası giderilecek.
 - [x] **Bug (Hesaplama):** Net Profit güncelleme hatası giderilecek.
