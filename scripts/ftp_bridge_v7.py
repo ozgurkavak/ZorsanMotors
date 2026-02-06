@@ -10,6 +10,12 @@ from dotenv import load_dotenv
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import ThreadedFTPServer
+try:
+    from feature_parser import generate_features_from_raw
+except ImportError:
+    # Fallback if file missing
+    def generate_features_from_raw(text):
+        return text.replace('  ', ', ').strip() if text else None
 
 # Load env variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
@@ -132,7 +138,7 @@ def process_file_logic(file, connection_info):
                     "exteriorColor": row.get('ExteriorColor'),
                     "interiorColor": row.get('InteriorColor'),
                     "transmission": row.get('Transmission'),
-                    "features": row.get('EquipmentCode').replace('  ', ', ').replace('   ', ', ').strip() if row.get('EquipmentCode') else None, # Feature Generator Logic: Attempt to split by multiple spaces
+                    "features": generate_features_from_raw(row.get('EquipmentCode')), # Feature Generator: Uses dictionary parser
                     "images": photo_list,
                     "image": photo_list[0] if photo_list else None
                 }
