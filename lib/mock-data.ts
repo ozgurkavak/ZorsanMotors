@@ -16,7 +16,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Used",
         exteriorColor: "Agate Black",
         interiorColor: "Black Leather",
-        features: ["Navigation", "Heated Seats", "Tow Package"],
+        features: "Navigation, Heated Seats, Tow Package",
         carfaxUrl: "/carfax-report/1",
     },
     {
@@ -34,7 +34,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Certified Pre-Owned",
         exteriorColor: "Summit White",
         interiorColor: "Jet Black",
-        features: ["Apple CarPlay", "Remote Start", "Z71 Package"],
+        features: "Apple CarPlay, Remote Start, Z71 Package",
         carfaxUrl: "/carfax-report/2",
     },
     {
@@ -52,7 +52,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Used",
         exteriorColor: "Deep Blue Metallic",
         interiorColor: "Black",
-        features: ["Autopilot", "Premium Interior", "Glass Roof"],
+        features: "Autopilot, Premium Interior, Glass Roof",
         carfaxUrl: "/carfax-report/3",
     },
     {
@@ -70,7 +70,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Certified Pre-Owned",
         exteriorColor: "Wind Chill Pearl",
         interiorColor: "Red/Black",
-        features: ["TRD Performance Exhaust", "Sport Seats", "JBL Audio"],
+        features: "TRD Performance Exhaust, Sport Seats, JBL Audio",
         carfaxUrl: "/carfax-report/4",
     },
     {
@@ -88,7 +88,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Used",
         exteriorColor: "Alpine White",
         interiorColor: "Canberra Beige",
-        features: ["Live Cockpit Pro", "Heated Steering Wheel", "Park Distance Control"],
+        features: "Live Cockpit Pro, Heated Steering Wheel, Park Distance Control",
         carfaxUrl: "/carfax-report/5",
     },
     {
@@ -104,7 +104,7 @@ export const baseVehicles: Vehicle[] = [
         transmission: "Automatic",
         image: "https://images.unsplash.com/photo-1581540222194-0def2dda95b8?auto=format&fit=crop&q=80&w=1200",
         condition: "Used",
-        features: ["Bluetooth", "Backup Camera", "Keyless Entry", "Crawl Control", "Multi-Terrain Select"],
+        features: "Bluetooth, Backup Camera, Keyless Entry, Crawl Control, Multi-Terrain Select",
         carfaxUrl: "/carfax-report/6",
         exteriorColor: "Army Green",
         interiorColor: "Black",
@@ -124,7 +124,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Used",
         exteriorColor: "Torch Red",
         interiorColor: "Adrenaline Red",
-        features: ["Z51 Performance Package", "GT2 Buckets", "Front Lift"],
+        features: "Z51 Performance Package, GT2 Buckets, Front Lift",
         carfaxUrl: "/carfax-report/7",
     },
     {
@@ -142,7 +142,7 @@ export const baseVehicles: Vehicle[] = [
         condition: "Certified Pre-Owned",
         exteriorColor: "Glacier White",
         interiorColor: "Black",
-        features: ["Quattro AWD", "Virtual Cockpit", "Bang & Olufsen 3D Sound"],
+        features: "Quattro AWD, Virtual Cockpit, Bang & Olufsen 3D Sound",
         carfaxUrl: "/carfax-report/8",
     },
 ];
@@ -246,7 +246,7 @@ const generateMoreVehicles = (startId: number, count: number): Vehicle[] => {
             condition: mileage < 30000 ? "Certified Pre-Owned" : "Used",
             exteriorColor: color.ext,
             interiorColor: color.int,
-            features: ["Bluetooth", "Backup Camera", "Keyless Entry", "Apple CarPlay"],
+            features: "Bluetooth, Backup Camera, Keyless Entry, Apple CarPlay",
             carfaxUrl: `/carfax-report/${id}`,
         });
     }
