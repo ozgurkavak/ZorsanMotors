@@ -23,7 +23,11 @@ FTP_PASS = os.getenv("FTP_PASS")
 if not FTP_PASS:
     raise ValueError("FTP_PASS not found in environment variables. Please check .env file.")
 
-FTP_PORT = int(os.getenv("FTP_PORT", 21))
+port_str = os.getenv("FTP_PORT")
+if not port_str:
+    raise ValueError("FTP_PORT not found in environment variables.")
+FTP_PORT = int(port_str)
+
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://www.zorsanmotors.com/api/webhooks/inventory-sync")
 WEBHOOK_TOKEN = os.getenv("WEBHOOK_TOKEN") 
 HEARTBEAT_INTERVAL = 3600
