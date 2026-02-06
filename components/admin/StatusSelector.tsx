@@ -34,13 +34,13 @@ export function StatusSelector({ vehicle }: StatusSelectorProps) {
         }
     };
 
-    const getVariant = (status: string) => {
+    const getStatusStyles = (status: string) => {
         switch (status) {
-            case 'Available': return 'default';
-            case 'Sold': return 'destructive';
-            case 'Pending': return 'secondary';
-            case 'Reserved': return 'outline';
-            default: return 'secondary';
+            case 'Available': return 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent';
+            case 'Sold': return 'bg-red-600 hover:bg-red-700 text-white border-transparent';
+            case 'Pending': return 'bg-amber-500 hover:bg-amber-600 text-white border-transparent';
+            case 'Reserved': return 'bg-blue-600 hover:bg-blue-700 text-white border-transparent';
+            default: return 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
         }
     };
 
@@ -49,8 +49,8 @@ export function StatusSelector({ vehicle }: StatusSelectorProps) {
             <DropdownMenuTrigger asChild>
                 <div className="cursor-pointer inline-flex items-center">
                     <Badge
-                        variant={getVariant(vehicle.status || 'Available')}
-                        className="hover:opacity-80 transition-opacity gap-1"
+                        variant="outline"
+                        className={`transition-colors gap-1 ${getStatusStyles(vehicle.status || 'Available')}`}
                     >
                         {vehicle.status || 'Available'}
                         {loading && <Loader2 className="w-3 h-3 animate-spin" />}
