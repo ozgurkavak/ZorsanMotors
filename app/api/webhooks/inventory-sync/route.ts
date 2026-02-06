@@ -89,6 +89,7 @@ export async function POST(request: Request) {
             // condition: v.mileage < 1000 ? "New" : "Used", // Removed to fix DB Schema Error
             exterior_color: v.exteriorColor || "Unknown",
             interior_color: v.interiorColor || "Unknown",
+            features: v.features || null,
             updated_at: new Date().toISOString()
         }));
 

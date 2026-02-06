@@ -52,3 +52,5 @@ email_archive/
 
 # Server Backups & Logs
 ftp_server/
+processed_backups/
+SERVER_MANAGEMENT_PRIVATE.md

@@ -102,7 +102,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 status: (vehicle.status as "Available" | "Sold" | "Reserved") || "Available",
                 bodyType: vehicle.bodyType as any,
                 transmission: vehicle.transmission as any || "Automatic",
-                features: vehicle.features || [],
+                features: vehicle.features ? featuresList.filter(f => vehicle.features!.includes(f)) : [],
             });
 
             // Initialize images
@@ -174,7 +174,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 status: data.status,
                 bodyType: data.bodyType,
                 transmission: data.transmission as any,
-                features: data.features || [],
+                features: data.features ? data.features.join(', ') : "",
                 image: primaryImage,
                 images: finalImages,
                 condition: parseInt(data.mileage) < 30000 ? "Certified Pre-Owned" : "Used",
