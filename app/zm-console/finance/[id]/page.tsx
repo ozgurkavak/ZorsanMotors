@@ -122,6 +122,17 @@ export default function FinanceDetailPage() {
                     </Card>
 
                     <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium">Imported Features</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                {vehicle.features || "No features imported."}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
                         <CardHeader>
                             <CardTitle>Acquisition Cost</CardTitle>
                         </CardHeader>

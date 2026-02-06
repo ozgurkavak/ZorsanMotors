@@ -132,6 +132,7 @@ def process_file_logic(file, connection_info):
                     "exteriorColor": row.get('ExteriorColor'),
                     "interiorColor": row.get('InteriorColor'),
                     "transmission": row.get('Transmission'),
+                    "features": row.get('EquipmentCode'),
                     "images": photo_list,
                     "image": photo_list[0] if photo_list else None
                 }
