@@ -138,10 +138,56 @@ def process_file_logic(file, connection_info):
                     "exteriorColor": row.get('ExteriorColor'),
                     "interiorColor": row.get('InteriorColor'),
                     "transmission": row.get('Transmission'),
-                    "features": generate_features_from_raw(row.get('EquipmentCode')), # Feature Generator: Uses dictionary parser
+                    "features": generate_features_from_raw(row.get('EquipmentCode')),
                     "images": photo_list,
                     "image": photo_list[0] if photo_list else None
                 }
+                
+                # Intelligent Field Refinement
+                features_set = set(vehicle["features"] or [])
+                trim_upper = (row.get('Trim') or "").upper()
+                model_upper = (row.get('Model') or "").upper()
+                
+                # 1. Body Type Inference
+                if not vehicle.get("bodyType") or vehicle["bodyType"] == "Other":
+                    if "PICKUP" in trim_upper or "TRUCK" in trim_upper or "TUNDRA" in model_upper or "SILVERADO" in model_upper or "F-150" in model_upper:
+                        vehicle["bodyType"] = "Truck"
+                    elif "SUV" in trim_upper or "UTILITY" in trim_upper or "JEEP" in model_upper or "RAV4" in model_upper:
+                        vehicle["bodyType"] = "SUV"
+                    elif "SEDAN" in trim_upper:
+                        vehicle["bodyType"] = "Sedan"
+                    elif "COUPE" in trim_upper:
+                        vehicle["bodyType"] = "Coupe"
+                    elif "WAGON" in trim_upper:
+                        vehicle["bodyType"] = "Wagon"
+                    elif "VAN" in trim_upper:
+                        vehicle["bodyType"] = "Van"
+
+                # 2. Drivetrain Inference
+                if "AWD" in features_set or "4WD" in features_set or "4X4" in features_set:
+                    vehicle["drivetrain"] = "AWD/4WD"
+                elif "FWD" in features_set:
+                    vehicle["drivetrain"] = "FWD"
+                elif "RWD" in features_set:
+                    vehicle["drivetrain"] = "RWD"
+                    
+                # 3. Engine Inference
+                engine_parts = []
+                for f in features_set:
+                    if f in ["V6", "V8", "4-Cyl", "Hybrid", "Electric", "Diesel", "Turbo"]:
+                        engine_parts.append(f)
+                    if "LITER" in f.upper():
+                        engine_parts.append(f)
+                if engine_parts:
+                    vehicle["engine"] = " ".join(engine_parts)
+                
+                # 4. Fuel Type Refinement
+                if "HYBRID" in trim_upper or "HYBRID" in features_set:
+                    vehicle["fuelType"] = "Hybrid"
+                elif "ELECTRIC" in trim_upper or "ELECTRIC" in features_set:
+                    vehicle["fuelType"] = "Electric"
+                elif "DIESEL" in trim_upper or "DIESEL" in features_set:
+                    vehicle["fuelType"] = "Diesel"
                 vehicles.append(vehicle)
 
         log_event(f"[PARSING] Parsed {len(vehicles)} vehicles. Skipped {len(skipped_rows)} rows.")
