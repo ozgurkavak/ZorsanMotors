@@ -1,15 +1,21 @@
 "use client";
 
-import { Log } from "@/types"; // Make sure Log type is available or define inline
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, AlertCircle, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-// Define a minimal type if needed, or import full Database Type
+interface Log {
+    id: string;
+    event_type: string;
+    message: string;
+    details: any;
+    created_at: string;
+}
+
 interface SyncLogItemProps {
-    log: any; // Using any for flexibility with Supabase response
+    log: Log;
 }
 
 export function SyncLogItem({ log }: SyncLogItemProps) {
