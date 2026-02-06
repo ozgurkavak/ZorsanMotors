@@ -97,7 +97,11 @@ export default function FinanceDetailPage() {
                         <CardContent className="p-0 overflow-hidden">
                             {vehicle.image ? (
                                 <div className="h-48 w-full bg-muted">
-                                    <img src={vehicle.image} className="h-full w-full object-cover" />
+                                    <img
+                                        src={vehicle.image}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => { e.currentTarget.src = "/placeholder.png"; e.currentTarget.onerror = null; }}
+                                    />
                                 </div>
                             ) : (
                                 <div className="h-48 w-full bg-muted flex items-center justify-center">
@@ -195,9 +199,9 @@ export default function FinanceDetailPage() {
                         </Card>
                         <Card>
                             <CardContent className="p-6">
-                                <span className="text-sm text-muted-foreground">Sale Price</span>
-                                <p className="text-2xl font-bold text-green-700">${sale.toLocaleString()}</p>
-                                {sale > 0 && <p className="text-xs text-muted-foreground">Date: {saleDate || 'N/A'}</p>}
+                                <span className="text-sm text-muted-foreground">Price</span>
+                                <p className="text-2xl font-bold text-primary">${(vehicle.price || 0).toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground">Listing Price</p>
                             </CardContent>
                         </Card>
                     </div>
