@@ -22,7 +22,7 @@
 
 ## 🔐 4. Admin Panel Güvenlik ve Yetkilendirme (Phase 3)
 - [ ] **Auth Sistemi:** Tek şifreli giriş yerine, çoklu kullanıcı (Username/Password) sistemine geçilecek.
-- [ ] **Secrets:** Python scriptindeki FTP şifreleri `.env` dosyasına taşınacak.
+- [x] **Secrets:** Python scriptindeki FTP şifreleri `.env` dosyasına taşınacak. (Tamamlandı: V7 Sürümü)
 - [ ] **Audit Log (İşlem Kaydı):** Hangi adminin ne zaman, hangi değişikliği yaptığını kaydeden log mekanizması kurulacak.
 - [ ] **Güvenlik:** Admin paneli için genel güvenlik taraması ve sıkılaştırma yapılacak.
 

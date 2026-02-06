@@ -17,24 +17,25 @@ export function FinanceStats() {
         return acc;
     }, {} as Record<string, number>);
 
-    // 2. Financial Aggregates
-    let totalPurchase = 0;
-    let totalExpenses = 0;
-    let totalSale = 0;
-    let vehicleCount = vehicles.length;
+    // 2. Financial Aggregates (Active Inventory Only)
+    let activePurchase = 0;
+    let activeExpenses = 0;
+    let activeCount = 0;
 
     vehicles.forEach(v => {
-        const purchase = v.purchasePrice || 0;
-        const expenses = v.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
-        const sale = v.salePrice || 0;
+        // Calculate Cost for Active (Available, Reserved, Pending) vehicles only
+        if (v.status !== 'Sold') {
+            const purchase = v.purchasePrice || 0;
+            const expenses = v.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
 
-        totalPurchase += purchase;
-        totalExpenses += expenses;
-        totalSale += sale;
+            activePurchase += purchase;
+            activeExpenses += expenses;
+            activeCount++;
+        }
     });
 
-    const totalCost = totalPurchase + totalExpenses;
-    const avgCost = vehicleCount > 0 ? totalCost / vehicleCount : 0;
+    const totalActiveCost = activePurchase + activeExpenses;
+    const avgActiveCost = activeCount > 0 ? totalActiveCost / activeCount : 0;
 
     // Realized Profit (Sold vehicles only)
     let realizedProfit = 0;
@@ -43,14 +44,20 @@ export function FinanceStats() {
     let soldCount = 0;
 
     vehicles.forEach(v => {
-        if (v.salePrice && v.salePrice > 0) {
+        if (v.status === 'Sold') {
             const purchase = v.purchasePrice || 0;
             const expenses = v.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
             const cost = purchase + expenses;
-            realizedProfit += (v.salePrice - cost);
-            realizedSale += v.salePrice;
-            realizedCost += cost;
-            soldCount++;
+
+            // Use Sale Price if set, otherwise fallback to Listing Price
+            const sale = v.salePrice && v.salePrice > 0 ? v.salePrice : (v.price || 0);
+
+            if (sale > 0) {
+                realizedProfit += (sale - cost);
+                realizedSale += sale;
+                realizedCost += cost;
+                soldCount++;
+            }
         }
     });
 
@@ -90,25 +97,25 @@ export function FinanceStats() {
                 </CardContent>
             </Card>
 
-            {/* Total Inventory Cost (Purchase + Expenses of ALL cars) */}
+            {/* Total Inventory Cost (Active Only) */}
             <Card className="flex flex-col">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium">Total Inventory Cost</CardTitle>
+                    <CardTitle className="text-sm font-medium">Active Inventory Cost</CardTitle>
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className="flex flex-col flex-1 justify-between gap-4">
                     <div>
-                        <div className="text-2xl font-bold">${totalCost.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">${totalActiveCost.toLocaleString()}</div>
                         <p className="text-xs text-muted-foreground mt-1">
                             Breakdown: <br />
-                            Purchase: ${totalPurchase.toLocaleString()} <br />
-                            Expenses: ${totalExpenses.toLocaleString()}
+                            Purchase: ${activePurchase.toLocaleString()} <br />
+                            Expenses: ${activeExpenses.toLocaleString()}
                         </p>
                     </div>
                     <div className="pt-4 border-t mt-auto">
                         <div className="flex justify-between items-center text-xs">
                             <span className="text-muted-foreground">Avg Cost / Car</span>
-                            <span className="font-medium">${avgCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                            <span className="font-medium">${avgActiveCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                         </div>
                     </div>
                 </CardContent>
