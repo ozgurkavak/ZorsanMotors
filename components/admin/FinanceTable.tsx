@@ -28,7 +28,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { exportToCSV, exportToExcel, exportToPDF, handlePrint } from "@/lib/export-utils";
+import { exportToCSV, exportToExcel, exportToPDF, printTable } from "@/lib/export-utils";
 
 type SortConfig = {
     key: 'purchase' | 'price' | null;
@@ -212,6 +212,25 @@ export function FinanceTable() {
         }
     };
 
+    const handlePrintRequest = () => {
+        const headers = ['Stock', 'Vehicle', 'Auction', 'Status', 'Purchase', 'Exp', 'Cost', 'Price', 'Profit'];
+        const rows = displayedVehicles.map(v => {
+            const { purchase, expenses, totalCost, sale, profit } = calculateFinancials(v);
+            return [
+                v.stockNumber || '-',
+                `${v.year} ${v.make} ${v.model}`,
+                v.auctionName || '-',
+                `<span class="status-badge">${v.status || "Unknown"}</span>`,
+                `$${purchase.toLocaleString()}`,
+                `$${expenses.toLocaleString()}`,
+                `$${totalCost.toLocaleString()}`,
+                `$${sale.toLocaleString()}`,
+                `$${profit.toLocaleString()}`
+            ];
+        });
+        printTable("Financial Report", headers, rows);
+    };
+
     // Helper for Sort Header
     const SortableHeader = ({ title, colKey }: { title: string, colKey: 'purchase' | 'price' }) => {
         const currentSort = sortConfig.key === colKey ? sortConfig.direction : 'default';
@@ -270,7 +289,7 @@ export function FinanceTable() {
                 </div>
 
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handlePrint} title="Print Table">
+                    <Button variant="outline" size="sm" onClick={handlePrintRequest} title="Print Table">
                         <Printer className="w-4 h-4" />
                     </Button>
                     <DropdownMenu>

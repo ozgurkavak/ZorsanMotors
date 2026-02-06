@@ -33,7 +33,7 @@ import {
     DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { exportToCSV, exportToExcel, exportToPDF, handlePrint } from "@/lib/export-utils";
+import { exportToCSV, exportToExcel, exportToPDF, printTable } from "@/lib/export-utils";
 
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { StatusSelector } from "./StatusSelector";
@@ -86,6 +86,29 @@ export function InventoryTable({ limit }: { limit?: number }) {
         localStorage.setItem('zorsan_settings_inventory_cols', JSON.stringify(newCols));
     };
 
+    // Filter and Limit
+    const displayedVehicles = vehicles
+        .filter(v => {
+            if (!searchTerm) return true;
+            const term = searchTerm.toLowerCase();
+            const stock = v.stockNumber?.toLowerCase() || "";
+            const title = `${v.make} ${v.model} ${v.year}`.toLowerCase();
+            return stock.includes(term) || title.includes(term);
+        })
+        .filter(v => {
+            if (limit) return v.status !== 'Sold'; // Widget shows only active
+            if (activeTab === 'sold') return v.status === 'Sold';
+            return v.status !== 'Sold'; // Active tab
+        })
+        .sort((a, b) => {
+            // Sort Sold items by Sold Date (desc) if available, else standard
+            if (activeTab === 'sold' && a.soldDate && b.soldDate) {
+                return new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime();
+            }
+            return 0;
+        })
+        .slice(0, limit || vehicles.length);
+
     const handleExport = (type: 'csv' | 'excel' | 'pdf') => {
         const dataToExport = displayedVehicles.map(v => ({
             StockNumber: v.stockNumber,
@@ -115,28 +138,26 @@ export function InventoryTable({ limit }: { limit?: number }) {
         }
     };
 
-    // Filter and Limit
-    const displayedVehicles = vehicles
-        .filter(v => {
-            if (!searchTerm) return true;
-            const term = searchTerm.toLowerCase();
-            const stock = v.stockNumber?.toLowerCase() || "";
-            const title = `${v.make} ${v.model} ${v.year}`.toLowerCase();
-            return stock.includes(term) || title.includes(term);
-        })
-        .filter(v => {
-            if (limit) return v.status !== 'Sold'; // Widget shows only active
-            if (activeTab === 'sold') return v.status === 'Sold';
-            return v.status !== 'Sold'; // Active tab
-        })
-        .sort((a, b) => {
-            // Sort Sold items by Sold Date (desc) if available, else standard
-            if (activeTab === 'sold' && a.soldDate && b.soldDate) {
-                return new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime();
-            }
-            return 0; // Keep default sort from context or implement basic recent sort
-        })
-        .slice(0, limit || vehicles.length);
+    const handlePrintRequest = () => {
+        const headers = ['Image', 'Stock', 'Vehicle', 'Year', 'Cost', 'Price', 'Status'];
+        const rows = displayedVehicles.map(v => {
+            const purchase = v.purchasePrice || 0;
+            const expenses = v.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
+            const totalCost = purchase + expenses;
+            const imageHtml = v.image ? `<img src="${v.image}" onerror="this.src='/placeholder.png'" />` : '';
+
+            return [
+                imageHtml,
+                v.stockNumber || '-',
+                `${v.make} ${v.model}`,
+                v.year,
+                `$${totalCost.toLocaleString()}`,
+                `$${v.price.toLocaleString()}`,
+                `<span class="status-badge">${v.status}</span>`
+            ];
+        });
+        printTable("Inventory Report", headers, rows);
+    };
 
     const handleDelete = async () => {
         if (deleteId) {
@@ -144,8 +165,6 @@ export function InventoryTable({ limit }: { limit?: number }) {
             setDeleteId(null);
         }
     };
-
-
 
     return (
         <div className="rounded-xl border bg-card shadow-sm">
@@ -159,7 +178,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                         <div className="flex items-center gap-2">
                             {/* Export & Settings */}
                             <div className="flex gap-2 mr-2">
-                                <Button variant="outline" size="sm" onClick={handlePrint} title="Print Table">
+                                <Button variant="outline" size="sm" onClick={handlePrintRequest} title="Print Table">
                                     <Printer className="w-4 h-4" />
                                 </Button>
                                 <DropdownMenu>
@@ -254,7 +273,14 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                         {!limit && visibleColumns.includes('image') && (
                                             <TableCell>
                                                 <div className="h-12 w-20 rounded overflow-hidden bg-muted">
-                                                    {vehicle.image && <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover object-center" />}
+                                                    {vehicle.image && (
+                                                        <img
+                                                            src={vehicle.image}
+                                                            alt={vehicle.model}
+                                                            className="h-full w-full object-cover object-center"
+                                                            onError={(e) => { e.currentTarget.src = "/placeholder.png"; e.currentTarget.onerror = null; }}
+                                                        />
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         )}
