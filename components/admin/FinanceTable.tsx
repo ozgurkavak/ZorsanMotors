@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, ChevronDown, ArrowUp, ArrowDown, X, Settings2 } from "lucide-react";
+import { Search, ExternalLink, ChevronDown, ArrowUp, ArrowDown, X, Settings2, FileDown, Printer, Columns } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Vehicle } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,11 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { exportToCSV, exportToExcel, exportToPDF, handlePrint } from "@/lib/export-utils";
 
 type SortConfig = {
     key: 'purchase' | 'price' | null;
@@ -48,6 +52,43 @@ export function FinanceTable() {
 
     // Resize Logic
     const [resizing, setResizing] = useState<{ col: 'purchase' | 'price', startX: number, startWidth: number } | null>(null);
+
+    // Column Visibility Settings
+    const allColumns = [
+        { id: 'stock', label: 'Stock #', default: true },
+        { id: 'vehicle', label: 'Vehicle', default: true },
+        { id: 'auction', label: 'Auction', default: true },
+        { id: 'status', label: 'Status', default: true },
+        { id: 'purchase', label: 'Purchase Price', default: true },
+        { id: 'expenses', label: 'Expenses', default: true },
+        { id: 'totalCost', label: 'Total Cost', default: true },
+        { id: 'price', label: 'Sale Price', default: true },
+        { id: 'profit', label: 'Net Profit', default: true },
+    ];
+
+    // Load settings from localStorage or default
+    const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns.map(c => c.id));
+
+    useEffect(() => {
+        const saved = localStorage.getItem('zorsan_settings_finance_cols');
+        if (saved) {
+            try {
+                setVisibleColumns(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse settings", e);
+            }
+        }
+    }, []);
+
+    const toggleColumn = (id: string, checked: boolean) => {
+        const newCols = checked
+            ? [...visibleColumns, id]
+            : visibleColumns.filter(c => c !== id);
+
+        setVisibleColumns(newCols);
+        localStorage.setItem('zorsan_settings_finance_cols', JSON.stringify(newCols));
+    };
+
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -129,6 +170,48 @@ export function FinanceTable() {
         }
     };
 
+    const handleExport = (type: 'csv' | 'excel' | 'pdf') => {
+        const dataToExport = displayedVehicles.map(v => {
+            const { purchase, expenses, totalCost, sale, profit } = calculateFinancials(v);
+            return {
+                StockNumber: v.stockNumber,
+                Make: v.make,
+                Model: v.model,
+                Year: v.year,
+                Auction: v.auctionName,
+                Status: v.status,
+                PurchasePrice: purchase,
+                Expenses: expenses,
+                TotalCost: totalCost,
+                SalePrice: sale,
+                NetProfit: profit
+            };
+        });
+
+        const filename = `Finance_Report_${new Date().toISOString().split('T')[0]}`;
+
+        if (type === 'csv') exportToCSV(dataToExport, filename);
+        if (type === 'excel') exportToExcel(dataToExport, filename);
+        if (type === 'pdf') {
+            const headers = ['Stock', 'Vehicle', 'Auction', 'Status', 'Purchase', 'Exp', 'Cost', 'Price', 'Profit'];
+            const rows = displayedVehicles.map(v => {
+                const { purchase, expenses, totalCost, sale, profit } = calculateFinancials(v);
+                return [
+                    v.stockNumber,
+                    `${v.year} ${v.make}`,
+                    v.auctionName,
+                    v.status,
+                    `$${purchase.toLocaleString()}`,
+                    `$${expenses.toLocaleString()}`,
+                    `$${totalCost.toLocaleString()}`,
+                    `$${sale.toLocaleString()}`,
+                    `$${profit.toLocaleString()}`
+                ];
+            });
+            exportToPDF(headers, rows, 'Financial Report', filename);
+        }
+    };
+
     // Helper for Sort Header
     const SortableHeader = ({ title, colKey }: { title: string, colKey: 'purchase' | 'price' }) => {
         const currentSort = sortConfig.key === colKey ? sortConfig.direction : 'default';
@@ -184,59 +267,88 @@ export function FinanceTable() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                </div>
 
-                    {/* Table View Settings Button */}
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handlePrint} title="Print Table">
+                        <Printer className="w-4 h-4" />
+                    </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon" className="shrink-0">
-                                <Settings2 className="h-4 w-4" />
+                            <Button variant="outline" size="sm">
+                                <FileDown className="w-4 h-4 mr-2" />
+                                Export
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem disabled>
-                                Configuration coming soon...
-                            </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Export Data</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleExport('csv')}>Download CSV</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExport('excel')}>Download Excel</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExport('pdf')}>Download PDF</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
 
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <Columns className="w-4 h-4 mr-2" />
+                                Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[180px]">
+                            <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {allColumns.map(col => (
+                                <DropdownMenuCheckboxItem
+                                    key={col.id}
+                                    checked={visibleColumns.includes(col.id)}
+                                    onCheckedChange={(checked) => toggleColumn(col.id, checked)}
+                                >
+                                    {col.label}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
-                <div className="text-sm text-muted-foreground whitespace-nowrap">
-                    Showing {displayedVehicles.length} vehicles
-                </div>
+
             </div>
             <div className="relative w-full overflow-auto">
                 <Table className="border-collapse">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent border-b">
-                            <TableHead className="w-[100px] border-r border-border/50">Stock #</TableHead>
-                            <TableHead className="w-[200px] border-r border-border/50">Vehicle</TableHead>
-                            <TableHead className="w-[150px] border-r border-border/50">Auction</TableHead>
-                            <TableHead className="w-[100px] border-r border-border/50">Status</TableHead>
+                            {visibleColumns.includes('stock') && <TableHead className="w-[100px] border-r border-border/50">Stock #</TableHead>}
+                            {visibleColumns.includes('vehicle') && <TableHead className="w-[200px] border-r border-border/50">Vehicle</TableHead>}
+                            {visibleColumns.includes('auction') && <TableHead className="w-[150px] border-r border-border/50">Auction</TableHead>}
+                            {visibleColumns.includes('status') && <TableHead className="w-[100px] border-r border-border/50">Status</TableHead>}
 
                             {/* Purchase Column */}
-                            <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.purchase }}>
-                                <div className="h-12 flex items-center justify-end">
-                                    <SortableHeader title="Purchase" colKey="purchase" />
-                                </div>
-                            </TableHead>
+                            {visibleColumns.includes('purchase') && (
+                                <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.purchase }}>
+                                    <div className="h-12 flex items-center justify-end">
+                                        <SortableHeader title="Purchase" colKey="purchase" />
+                                    </div>
+                                </TableHead>
+                            )}
 
-                            <TableHead className="min-w-[120px] text-right border-r border-border/50">Expenses</TableHead>
-                            <TableHead className="min-w-[120px] text-right border-r border-border/50">Total Cost</TableHead>
+                            {visibleColumns.includes('expenses') && <TableHead className="min-w-[120px] text-right border-r border-border/50">Expenses</TableHead>}
+                            {visibleColumns.includes('totalCost') && <TableHead className="min-w-[120px] text-right border-r border-border/50">Total Cost</TableHead>}
 
                             {/* Sale Column */}
-                            <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.price }}>
-                                <div className="h-12 flex items-center justify-end">
-                                    <SortableHeader title="Price" colKey="price" />
-                                </div>
-                            </TableHead>
+                            {visibleColumns.includes('price') && (
+                                <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.price }}>
+                                    <div className="h-12 flex items-center justify-end">
+                                        <SortableHeader title="Price" colKey="price" />
+                                    </div>
+                                </TableHead>
+                            )}
 
-                            <TableHead className="min-w-[120px] text-right">Net Profit</TableHead>
+                            {visibleColumns.includes('profit') && <TableHead className="min-w-[120px] text-right">Net Profit</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {displayedVehicles.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={9} className="h-24 text-center">
+                                <TableCell colSpan={visibleColumns.length} className="h-24 text-center">
                                     No records found.
                                 </TableCell>
                             </TableRow>
@@ -246,74 +358,92 @@ export function FinanceTable() {
 
                                 return (
                                     <TableRow key={vehicle.id} className="hover:bg-muted/50 border-b border-border/50">
-                                        <TableCell className="font-mono font-medium text-xs border-r border-border/50">
-                                            {vehicle.stockNumber || "-"}
-                                        </TableCell>
+                                        {visibleColumns.includes('stock') && (
+                                            <TableCell className="font-mono font-medium text-xs border-r border-border/50">
+                                                {vehicle.stockNumber || "-"}
+                                            </TableCell>
+                                        )}
 
-                                        <TableCell
-                                            className="font-medium cursor-pointer text-blue-600 hover:underline flex items-center gap-1 border-r border-border/50"
-                                            onClick={() => router.push(`/zm-console/finance/${vehicle.id}`)}
-                                        >
-                                            {vehicle.year} {vehicle.make}
-                                            <ExternalLink className="w-3 h-3 opacity-50" />
-                                        </TableCell>
+                                        {visibleColumns.includes('vehicle') && (
+                                            <TableCell
+                                                className="font-medium cursor-pointer text-blue-600 hover:underline flex items-center gap-1 border-r border-border/50"
+                                                onClick={() => router.push(`/zm-console/finance/${vehicle.id}`)}
+                                            >
+                                                {vehicle.year} {vehicle.make}
+                                                <ExternalLink className="w-3 h-3 opacity-50" />
+                                            </TableCell>
+                                        )}
 
-                                        <TableCell className="text-muted-foreground text-xs border-r border-border/50 p-0">
-                                            <Input
-                                                className="h-full px-2 text-center bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none w-full text-xs"
-                                                defaultValue={vehicle.auctionName || ""}
-                                                placeholder="-"
-                                                onBlur={(e) => handleUpdateString(vehicle.id, 'auctionName', e.target.value)}
-                                            />
-                                        </TableCell>
+                                        {visibleColumns.includes('auction') && (
+                                            <TableCell className="text-muted-foreground text-xs border-r border-border/50 p-0">
+                                                <Input
+                                                    className="h-full px-2 text-center bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none w-full text-xs"
+                                                    defaultValue={vehicle.auctionName || ""}
+                                                    placeholder="-"
+                                                    onBlur={(e) => handleUpdateString(vehicle.id, 'auctionName', e.target.value)}
+                                                />
+                                            </TableCell>
+                                        )}
 
-                                        <TableCell className="border-r border-border/50">
-                                            <StatusSelector vehicle={vehicle} />
-                                        </TableCell>
+                                        {visibleColumns.includes('status') && (
+                                            <TableCell className="border-r border-border/50">
+                                                <StatusSelector vehicle={vehicle} />
+                                            </TableCell>
+                                        )}
 
                                         {/* Editable Purchase Price */}
-                                        <TableCell className="text-right border-r border-border/50 p-0">
-                                            <div className="flex justify-end h-full">
-                                                <Input
-                                                    className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
-                                                    style={{ width: '100%' }}
-                                                    defaultValue={purchase > 0 ? purchase : ""}
-                                                    placeholder="0"
-                                                    onBlur={(e) => handleUpdatePrice(vehicle.id, 'purchasePrice', e.target.value)}
-                                                />
-                                            </div>
-                                        </TableCell>
+                                        {visibleColumns.includes('purchase') && (
+                                            <TableCell className="text-right border-r border-border/50 p-0">
+                                                <div className="flex justify-end h-full">
+                                                    <Input
+                                                        className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
+                                                        style={{ width: '100%' }}
+                                                        defaultValue={purchase > 0 ? purchase : ""}
+                                                        placeholder="0"
+                                                        onBlur={(e) => handleUpdatePrice(vehicle.id, 'purchasePrice', e.target.value)}
+                                                    />
+                                                </div>
+                                            </TableCell>
+                                        )}
 
                                         {/* Clickable Expenses -> Dialog */}
-                                        <TableCell className="text-right border-r border-border/50">
-                                            <div
-                                                className="cursor-pointer hover:bg-muted p-1 transition-colors text-muted-foreground underline decoration-dotted"
-                                                onClick={() => setEditingExpensesVehicle(vehicle)}
-                                            >
-                                                ${expenses.toLocaleString()}
-                                            </div>
-                                        </TableCell>
+                                        {visibleColumns.includes('expenses') && (
+                                            <TableCell className="text-right border-r border-border/50">
+                                                <div
+                                                    className="cursor-pointer hover:bg-muted p-1 transition-colors text-muted-foreground underline decoration-dotted"
+                                                    onClick={() => setEditingExpensesVehicle(vehicle)}
+                                                >
+                                                    ${expenses.toLocaleString()}
+                                                </div>
+                                            </TableCell>
+                                        )}
 
-                                        <TableCell className="text-right font-medium border-r border-border/50">
-                                            ${totalCost.toLocaleString()}
-                                        </TableCell>
+                                        {visibleColumns.includes('totalCost') && (
+                                            <TableCell className="text-right font-medium border-r border-border/50">
+                                                ${totalCost.toLocaleString()}
+                                            </TableCell>
+                                        )}
 
                                         {/* Editable Sale Price */}
-                                        <TableCell className="text-right border-r border-border/50 p-0">
-                                            <div className="flex justify-end h-full">
-                                                <Input
-                                                    className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
-                                                    style={{ width: '100%' }}
-                                                    defaultValue={sale > 0 ? sale : ""}
-                                                    placeholder="-"
-                                                    onBlur={(e) => handleUpdatePrice(vehicle.id, 'price', e.target.value)}
-                                                />
-                                            </div>
-                                        </TableCell>
+                                        {visibleColumns.includes('price') && (
+                                            <TableCell className="text-right border-r border-border/50 p-0">
+                                                <div className="flex justify-end h-full">
+                                                    <Input
+                                                        className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
+                                                        style={{ width: '100%' }}
+                                                        defaultValue={sale > 0 ? sale : ""}
+                                                        placeholder="-"
+                                                        onBlur={(e) => handleUpdatePrice(vehicle.id, 'price', e.target.value)}
+                                                    />
+                                                </div>
+                                            </TableCell>
+                                        )}
 
-                                        <TableCell className={`text-right font-bold ${profit >= 0 && sale > 0 ? 'text-green-600' : (sale > 0 && profit < 0) ? 'text-red-600' : 'text-muted-foreground'}`}>
-                                            {sale > 0 ? `$${profit.toLocaleString()}` : '-'}
-                                        </TableCell>
+                                        {visibleColumns.includes('profit') && (
+                                            <TableCell className={`text-right font-bold ${profit >= 0 && sale > 0 ? 'text-green-600' : (sale > 0 && profit < 0) ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                                {sale > 0 ? `$${profit.toLocaleString()}` : '-'}
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 )
                             })

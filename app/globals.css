@@ -156,7 +156,56 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground cursor-default;
+  }
+}
+
+@media print {
+
+  /* Hide sidebar, navigation, buttons, and inputs during print */
+  aside,
+  nav,
+  header,
+  button,
+  input[type="search"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure main content takes full width */
+  main,
+  div[role="main"],
+  .p-6,
+  .p-8 {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Expand table */
+  .overflow-auto {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Hide Shadcn Card borders/shadows for clean print */
+  .border,
+  .shadow-sm {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Force background colors for readability if needed (browsers might strip them) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page breaks */
+  tr {
+    page-break-inside: avoid;
   }
 }

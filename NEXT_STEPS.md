@@ -12,13 +12,13 @@
 - [ ] **UX (İmleç):** Site genelindeki yazılı alanlarda tıklayınca imlecin yanıp sönmesi (text-cursor) kaldırılacak (`cursor-default`).
 - [ ] **Görsel:** Inventory Status bölümündeki renk paleti düzenlenecek.
 - [ ] **UI:** Finance Tablosundaki "Sale Price" başlığı "Price" olarak düzeltilecek.
-- [ ] **Bug (Hesaplama):** Total Inventory Cost güncelleme hatası giderilecek.
-- [ ] **Bug (Hesaplama):** Total Sales güncelleme hatası giderilecek.
-- [ ] **Bug (Hesaplama):** Net Profit güncelleme hatası giderilecek.
+- [x] **Bug (Hesaplama):** Total Inventory Cost güncelleme hatası giderilecek.
+- [x] **Bug (Hesaplama):** Total Sales güncelleme hatası giderilecek.
+- [x] **Bug (Hesaplama):** Net Profit güncelleme hatası giderilecek.
 
 ## 📊 3. Finansal Modül Geliştirmeleri
-- [ ] **Dışa Aktarım:** Financials tablosuna "Yazdır", "PDF İndir", "Excel İndir" butonları eklenecek.
-- [ ] **Kişiselleştirme:** Tablo sütunlarını gizleme/gösterme (Column Visibility) aracı düzenlenecek.
+- [x] **Dışa Aktarım:** Financials tablosuna "Yazdır", "PDF İndir", "Excel İndir" butonları eklenecek.
+- [x] **Kişiselleştirme:** Tablo sütunlarını gizleme/gösterme (Column Visibility) aracı düzenlenecek.
 
 ## 🔐 4. Admin Panel Güvenlik ve Yetkilendirme (Phase 3)
 - [ ] **Auth Sistemi:** Tek şifreli giriş yerine, çoklu kullanıcı (Username/Password) sistemine geçilecek.

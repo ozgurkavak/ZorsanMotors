@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, DollarSign, MoreHorizontal, Search } from "lucide-react";
-import { useState } from "react";
+import { Edit2, Trash2, DollarSign, MoreHorizontal, Search, Settings2, FileDown, Printer, Columns } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,8 +30,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { exportToCSV, exportToExcel, exportToPDF, handlePrint } from "@/lib/export-utils";
 
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { StatusSelector } from "./StatusSelector";
@@ -47,6 +49,71 @@ export function InventoryTable({ limit }: { limit?: number }) {
     const [managingVehicle, setManagingVehicle] = useState<Vehicle | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("active");
+
+    // Column Visibility Settings
+    const allColumns = [
+        { id: 'image', label: 'Image', default: true },
+        { id: 'stock', label: 'Stock #', default: true },
+        { id: 'vehicle', label: 'Vehicle', default: true },
+        { id: 'purchase', label: 'Purchase Price', default: true },
+        { id: 'cost', label: 'Total Cost', default: true },
+        { id: 'profit', label: 'Net Profit', default: true },
+        { id: 'price', label: 'Listing Price', default: true },
+        { id: 'status', label: 'Status', default: true },
+        { id: 'actions', label: 'Actions', default: true },
+    ];
+
+    // Load settings from localStorage or default
+    const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns.map(c => c.id));
+
+    useEffect(() => {
+        const saved = localStorage.getItem('zorsan_settings_inventory_cols');
+        if (saved) {
+            try {
+                setVisibleColumns(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse settings", e);
+            }
+        }
+    }, []);
+
+    const toggleColumn = (id: string, checked: boolean) => {
+        const newCols = checked
+            ? [...visibleColumns, id]
+            : visibleColumns.filter(c => c !== id);
+
+        setVisibleColumns(newCols);
+        localStorage.setItem('zorsan_settings_inventory_cols', JSON.stringify(newCols));
+    };
+
+    const handleExport = (type: 'csv' | 'excel' | 'pdf') => {
+        const dataToExport = displayedVehicles.map(v => ({
+            StockNumber: v.stockNumber,
+            Make: v.make,
+            Model: v.model,
+            Year: v.year,
+            Status: v.status,
+            Price: v.price,
+            PurchasePrice: v.purchasePrice || 0,
+            Expenses: v.expenses?.reduce((s, e) => s + e.amount, 0) || 0,
+            TotalCost: (v.purchasePrice || 0) + (v.expenses?.reduce((s, e) => s + e.amount, 0) || 0),
+            NetProfit: v.price - ((v.purchasePrice || 0) + (v.expenses?.reduce((s, e) => s + e.amount, 0) || 0))
+        }));
+
+        const filename = `Inventory_Report_${new Date().toISOString().split('T')[0]}`;
+
+        if (type === 'csv') exportToCSV(dataToExport, filename);
+        if (type === 'excel') exportToExcel(dataToExport, filename);
+        if (type === 'pdf') {
+            const headers = ['Stock', 'Make', 'Model', 'Year', 'Status', 'Price', 'Profit'];
+            const rows = displayedVehicles.map(v => {
+                const cost = (v.purchasePrice || 0) + (v.expenses?.reduce((s, e) => s + e.amount, 0) || 0);
+                const profit = v.price - cost;
+                return [v.stockNumber, v.make, v.model, v.year, v.status, `$${v.price}`, `$${profit}`];
+            });
+            exportToPDF(headers, rows, 'Inventory Report', filename);
+        }
+    };
 
     // Filter and Limit
     const displayedVehicles = vehicles
@@ -89,12 +156,57 @@ export function InventoryTable({ limit }: { limit?: number }) {
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                     {!limit && (
-                        <Tabs value={activeTab} onValueChange={setActiveTab}>
-                            <TabsList>
-                                <TabsTrigger value="active">Active Inventory</TabsTrigger>
-                                <TabsTrigger value="sold">Sold Log</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                        <div className="flex items-center gap-2">
+                            {/* Export & Settings */}
+                            <div className="flex gap-2 mr-2">
+                                <Button variant="outline" size="sm" onClick={handlePrint} title="Print Table">
+                                    <Printer className="w-4 h-4" />
+                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            <FileDown className="w-4 h-4 mr-2" />
+                                            Export
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Export Data</DropdownMenuLabel>
+                                        <DropdownMenuItem onClick={() => handleExport('csv')}>Download CSV</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleExport('excel')}>Download Excel</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleExport('pdf')}>Download PDF</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            <Columns className="w-4 h-4 mr-2" />
+                                            Columns
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[180px]">
+                                        <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        {allColumns.map(col => (
+                                            <DropdownMenuCheckboxItem
+                                                key={col.id}
+                                                checked={visibleColumns.includes(col.id)}
+                                                onCheckedChange={(checked) => toggleColumn(col.id, checked)}
+                                            >
+                                                {col.label}
+                                            </DropdownMenuCheckboxItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+
+                            <Tabs value={activeTab} onValueChange={setActiveTab}>
+                                <TabsList>
+                                    <TabsTrigger value="active">Active</TabsTrigger>
+                                    <TabsTrigger value="sold">Sold</TabsTrigger>
+                                </TabsList>
+                            </Tabs>
+                        </div>
                     )}
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -111,21 +223,21 @@ export function InventoryTable({ limit }: { limit?: number }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            {!limit && <TableHead>Image</TableHead>}
-                            <TableHead>Stock #</TableHead>
-                            <TableHead>Vehicle</TableHead>
-                            {!limit && <TableHead>Purchase</TableHead>}
-                            {!limit && <TableHead>Cost</TableHead>}
-                            {!limit && <TableHead>Profit</TableHead>}
-                            <TableHead>Price</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            {!limit && visibleColumns.includes('image') && <TableHead>Image</TableHead>}
+                            {(limit || visibleColumns.includes('stock')) && <TableHead>Stock #</TableHead>}
+                            {(limit || visibleColumns.includes('vehicle')) && <TableHead>Vehicle</TableHead>}
+                            {!limit && visibleColumns.includes('purchase') && <TableHead>Purchase</TableHead>}
+                            {!limit && visibleColumns.includes('cost') && <TableHead>Cost</TableHead>}
+                            {!limit && visibleColumns.includes('profit') && <TableHead>Profit</TableHead>}
+                            {(limit || visibleColumns.includes('price')) && <TableHead>Price</TableHead>}
+                            {(limit || visibleColumns.includes('status')) && <TableHead>Status</TableHead>}
+                            {(limit || visibleColumns.includes('actions')) && <TableHead className="text-right">Actions</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {displayedVehicles.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={limit ? 7 : 10} className="h-24 text-center">
+                                <TableCell colSpan={limit ? 4 : visibleColumns.length} className="h-24 text-center">
                                     No vehicles found.
                                 </TableCell>
                             </TableRow>
@@ -139,65 +251,77 @@ export function InventoryTable({ limit }: { limit?: number }) {
 
                                 return (
                                     <TableRow key={vehicle.id}>
-                                        {!limit && (
+                                        {!limit && visibleColumns.includes('image') && (
                                             <TableCell>
                                                 <div className="h-12 w-20 rounded overflow-hidden bg-muted">
                                                     {vehicle.image && <img src={vehicle.image} alt={vehicle.model} className="h-full w-full object-cover object-center" />}
                                                 </div>
                                             </TableCell>
                                         )}
-                                        <TableCell className="font-mono font-medium text-xs">
-                                            {vehicle.stockNumber || "-"}
-                                        </TableCell>
-                                        <TableCell className="font-medium">
-                                            {vehicle.year} {vehicle.make} {vehicle.model}
-                                        </TableCell>
-
-                                        {!limit && (
-                                            <>
-                                                <TableCell className="text-xs text-muted-foreground">
-                                                    ${purchase.toLocaleString()}
-                                                </TableCell>
-                                                <TableCell className="text-xs font-medium">
-                                                    ${totalCost.toLocaleString()}
-                                                </TableCell>
-                                                <TableCell className={`text-xs font-bold ${profit >= 0 && sale > 0 ? 'text-green-600' : (sale > 0 && profit < 0) ? 'text-red-600' : 'text-muted-foreground'}`}>
-                                                    {sale > 0 ? `$${profit.toLocaleString()}` : '-'}
-                                                </TableCell>
-                                            </>
+                                        {(limit || visibleColumns.includes('stock')) && (
+                                            <TableCell className="font-mono font-medium text-xs">
+                                                {vehicle.stockNumber || "-"}
+                                            </TableCell>
+                                        )}
+                                        {(limit || visibleColumns.includes('vehicle')) && (
+                                            <TableCell className="font-medium">
+                                                {vehicle.year} {vehicle.make} {vehicle.model}
+                                            </TableCell>
                                         )}
 
-                                        <TableCell>${vehicle.price.toLocaleString()}</TableCell>
-                                        <TableCell>
-                                            <StatusSelector vehicle={vehicle} />
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Open menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => setManagingVehicle(vehicle)}>
-                                                        <DollarSign className="w-4 h-4 mr-2" />
-                                                        Financials & Expenses
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => setEditingVehicle(vehicle)}>
-                                                        <Edit2 className="w-4 h-4 mr-2" />
-                                                        Edit Details
-                                                    </DropdownMenuItem>
+                                        {!limit && visibleColumns.includes('purchase') && (
+                                            <TableCell className="text-xs text-muted-foreground">
+                                                ${purchase.toLocaleString()}
+                                            </TableCell>
+                                        )}
+                                        {!limit && visibleColumns.includes('cost') && (
+                                            <TableCell className="text-xs font-medium">
+                                                ${totalCost.toLocaleString()}
+                                            </TableCell>
+                                        )}
+                                        {!limit && visibleColumns.includes('profit') && (
+                                            <TableCell className={`text-xs font-bold ${profit >= 0 && sale > 0 ? 'text-green-600' : (sale > 0 && profit < 0) ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                                {sale > 0 ? `$${profit.toLocaleString()}` : '-'}
+                                            </TableCell>
+                                        )}
 
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
-                                                        <Trash2 className="w-4 h-4 mr-2" />
-                                                        Delete Vehicle
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {(limit || visibleColumns.includes('price')) && (
+                                            <TableCell>${vehicle.price.toLocaleString()}</TableCell>
+                                        )}
+                                        {(limit || visibleColumns.includes('status')) && (
+                                            <TableCell>
+                                                <StatusSelector vehicle={vehicle} />
+                                            </TableCell>
+                                        )}
+                                        {(limit || visibleColumns.includes('actions')) && (
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Open menu</span>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => setManagingVehicle(vehicle)}>
+                                                            <DollarSign className="w-4 h-4 mr-2" />
+                                                            Financials & Expenses
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => setEditingVehicle(vehicle)}>
+                                                            <Edit2 className="w-4 h-4 mr-2" />
+                                                            Edit Details
+                                                        </DropdownMenuItem>
+
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(vehicle.id)}>
+                                                            <Trash2 className="w-4 h-4 mr-2" />
+                                                            Delete Vehicle
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 )
                             })
