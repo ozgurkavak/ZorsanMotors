@@ -7,14 +7,16 @@ import { Suspense } from "react";
 export default function FinancePage() {
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between print:hidden">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Financials & Expenses</h1>
                     <p className="text-muted-foreground">Track purchase costs, expenses, and profitability.</p>
                 </div>
             </div>
 
-            <FinanceStats />
+            <div className="print:hidden">
+                <FinanceStats />
+            </div>
 
             <div className="grid gap-8">
                 <div className="w-full">

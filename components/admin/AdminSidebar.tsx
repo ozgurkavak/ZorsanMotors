@@ -32,7 +32,7 @@ export function AdminSidebar() {
     };
 
     return (
-        <div className="flex w-64 flex-col border-r bg-card min-h-screen">
+        <div className="flex w-64 flex-col border-r bg-card min-h-screen print:hidden">
             <div className="flex h-16 items-center border-b px-6">
                 <span className="text-lg font-bold tracking-tight">Zorsan <span className="text-primary">Motors</span> Admin</span>
             </div>

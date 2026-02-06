@@ -180,48 +180,76 @@
 
 @media print {
 
-  /* Hide sidebar, navigation, buttons, and inputs during print */
+  /* GLOBAL RESET: Force White Background, Black Text */
+  @page {
+    margin: 1cm;
+    size: auto;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide UI Elements */
   aside,
   nav,
   header,
   button,
-  input[type="search"],
-  .no-print {
+  .print\:hidden,
+  [role="dialog"] {
     display: none !important;
   }
 
-  /* Ensure main content takes full width */
-  main,
-  div[role="main"],
-  .p-6,
-  .p-8 {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: none !important;
+  /* Reset Layout Constraints */
+  .h-screen,
+  .min-h-screen {
+    height: auto !important;
+    min-height: 0 !important;
   }
 
-  /* Expand table */
-  .overflow-auto {
+  .overflow-hidden,
+  .overflow-y-auto,
+  .overflow-x-auto {
     overflow: visible !important;
     height: auto !important;
   }
 
-  /* Hide Shadcn Card borders/shadows for clean print */
+  /* Main Content Full Width */
+  main,
+  div[role="main"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    flex: none !important;
+  }
+
+  .container {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Table Optimization */
+  table {
+    width: 100% !important;
+    border: 1px solid #000 !important;
+  }
+
+  th,
+  td {
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+
+  /* Hide Borders of Cards to flatten the look */
   .border,
-  .shadow-sm {
+  .shadow-sm,
+  .card {
     border: none !important;
     box-shadow: none !important;
-  }
-
-  /* Force background colors for readability if needed (browsers might strip them) */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Page breaks */
-  tr {
-    page-break-inside: avoid;
   }
 }
