@@ -360,33 +360,33 @@ export function FinanceTable() {
                 <Table className="border-collapse">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent border-b">
-                            {visibleColumns.includes('stock') && <TableHead className="w-[100px] border-r border-border/50">Stock #</TableHead>}
-                            {visibleColumns.includes('vehicle') && <TableHead className="w-[200px] border-r border-border/50">Vehicle</TableHead>}
-                            {visibleColumns.includes('auction') && <TableHead className="w-[150px] border-r border-border/50">Auction</TableHead>}
+                            {visibleColumns.includes('stock') && <TableHead className="w-[80px] border-r border-border/50">Stock #</TableHead>}
+                            {visibleColumns.includes('vehicle') && <TableHead className="min-w-[250px] border-r border-border/50">Vehicle</TableHead>}
+                            {visibleColumns.includes('auction') && <TableHead className="min-w-[150px] border-r border-border/50">Auction</TableHead>}
                             {visibleColumns.includes('status') && <TableHead className="w-[100px] border-r border-border/50">Status</TableHead>}
 
                             {/* Purchase Column */}
                             {visibleColumns.includes('purchase') && (
-                                <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.purchase }}>
-                                    <div className="h-12 flex items-center justify-end">
-                                        <SortableHeader title="Purchase" colKey="purchase" />
+                                <TableHead className="w-[110px] text-right p-0 relative border-r border-border/50">
+                                    <div className="h-12 flex items-center justify-end pr-2">
+                                        Purchase
                                     </div>
                                 </TableHead>
                             )}
 
-                            {visibleColumns.includes('expenses') && <TableHead className="min-w-[120px] text-right border-r border-border/50">Expenses</TableHead>}
-                            {visibleColumns.includes('totalCost') && <TableHead className="min-w-[120px] text-right border-r border-border/50">Total Cost</TableHead>}
+                            {visibleColumns.includes('expenses') && <TableHead className="w-[100px] text-right border-r border-border/50">Exp.</TableHead>}
+                            {visibleColumns.includes('totalCost') && <TableHead className="w-[110px] text-right border-r border-border/50">Cost</TableHead>}
 
                             {/* Sale Column */}
                             {visibleColumns.includes('price') && (
-                                <TableHead className="text-right p-0 relative border-r border-border/50" style={{ width: colWidths.price }}>
-                                    <div className="h-12 flex items-center justify-end">
-                                        <SortableHeader title="Price" colKey="price" />
+                                <TableHead className="w-[110px] text-right p-0 relative border-r border-border/50">
+                                    <div className="h-12 flex items-center justify-end pr-2">
+                                        Price
                                     </div>
                                 </TableHead>
                             )}
 
-                            {visibleColumns.includes('profit') && <TableHead className="min-w-[120px] text-right">Net Profit</TableHead>}
+                            {visibleColumns.includes('profit') && <TableHead className="w-[110px] text-right">Profit</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -410,11 +410,15 @@ export function FinanceTable() {
 
                                         {visibleColumns.includes('vehicle') && (
                                             <TableCell
-                                                className="font-medium cursor-pointer text-blue-600 hover:underline flex items-center gap-1 border-r border-border/50"
+                                                className="cursor-pointer border-r border-border/50"
                                                 onClick={() => router.push(`/zm-console/finance/${vehicle.id}`)}
                                             >
-                                                {vehicle.year} {vehicle.make}
-                                                <ExternalLink className="w-3 h-3 opacity-50" />
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-blue-600 hover:underline flex items-center gap-1">
+                                                        {vehicle.year} {vehicle.make} {vehicle.model}
+                                                        <ExternalLink className="w-3 h-3 opacity-50" />
+                                                    </span>
+                                                </div>
                                             </TableCell>
                                         )}
 
@@ -440,7 +444,7 @@ export function FinanceTable() {
                                             <TableCell className="text-right border-r border-border/50 p-0">
                                                 <div className="flex justify-end h-full">
                                                     <Input
-                                                        className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
+                                                        className="h-full px-2 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
                                                         style={{ width: '100%' }}
                                                         defaultValue={purchase > 0 ? purchase : ""}
                                                         placeholder="0"
@@ -473,7 +477,7 @@ export function FinanceTable() {
                                             <TableCell className="text-right border-r border-border/50 p-0">
                                                 <div className="flex justify-end h-full">
                                                     <Input
-                                                        className="h-full px-4 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
+                                                        className="h-full px-2 text-right bg-transparent border-transparent hover:border-input focus:border-input transition-colors rounded-none"
                                                         style={{ width: '100%' }}
                                                         defaultValue={sale > 0 ? sale : ""}
                                                         placeholder="-"
