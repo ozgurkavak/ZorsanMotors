@@ -229,6 +229,9 @@ export function InventoryTable({ limit }: { limit?: number }) {
                     </div>
 
                     <div className="w-full sm:w-auto flex items-center gap-2">
+                        <div className="text-sm font-medium text-muted-foreground whitespace-nowrap mr-2">
+                            Total: <span className="text-foreground">{displayedVehicles.length}</span>
+                        </div>
                         <div className="relative w-full sm:w-64">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input

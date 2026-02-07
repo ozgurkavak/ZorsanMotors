@@ -28,6 +28,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { exportToCSV, exportToExcel, exportToPDF, printTable } from "@/lib/export-utils";
 
 type SortConfig = {
@@ -40,6 +41,7 @@ export function FinanceTable() {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [editingExpensesVehicle, setEditingExpensesVehicle] = useState<Vehicle | null>(null);
+    const [activeTab, setActiveTab] = useState("Available");
 
     // Sorting
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'default' });
@@ -122,6 +124,11 @@ export function FinanceTable() {
             const title = `${v.make} ${v.model} ${v.year}`.toLowerCase();
             const auction = v.auctionName?.toLowerCase() || "";
             return stock.includes(term) || title.includes(term) || auction.includes(term);
+        })
+        .filter(v => {
+            if (activeTab === 'All') return true;
+            // Case insensitive match
+            return (v.status || 'Available') === activeTab;
         })
         .sort((a, b) => {
             // Custom Sorting for Purchase & Sale
@@ -321,6 +328,9 @@ export function FinanceTable() {
 
                 {/* Search Group (Right) */}
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <div className="text-sm font-medium text-muted-foreground whitespace-nowrap mr-2">
+                        Total: <span className="text-foreground">{displayedVehicles.length}</span>
+                    </div>
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -331,7 +341,20 @@ export function FinanceTable() {
                         />
                     </div>
                 </div>
+            </div>
 
+            {/* Tabs Row */}
+            <div className="px-6 pb-4 pt-2 border-b bg-muted/20">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="w-full sm:w-auto flex overflow-x-auto justify-start h-auto p-1 bg-background border">
+                        <TabsTrigger value="All">All</TabsTrigger>
+                        <TabsTrigger value="Available">Available</TabsTrigger>
+                        <TabsTrigger value="Sold">Sold</TabsTrigger>
+                        <TabsTrigger value="Reserved">Reserved</TabsTrigger>
+                        <TabsTrigger value="Pending">Pending</TabsTrigger>
+                        <TabsTrigger value="Hidden">Hidden</TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </div>
             <div className="relative w-full overflow-auto">
                 <Table className="border-collapse">
