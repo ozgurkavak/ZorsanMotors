@@ -39,7 +39,7 @@ export function StatusSelector({ vehicle }: StatusSelectorProps) {
             case 'Available':
                 return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200/50 hover:bg-emerald-200 dark:hover:bg-emerald-500/30';
             case 'Sold':
-                return 'bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-400 border-slate-200/50 hover:bg-slate-200 dark:hover:bg-slate-500/30';
+                return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200/50 hover:bg-red-200 dark:hover:bg-red-500/30';
             case 'Pending':
                 return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200/50 hover:bg-amber-200 dark:hover:bg-amber-500/30';
             case 'Reserved':
