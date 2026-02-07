@@ -23,7 +23,9 @@ function InventoryContent() {
         const matchesBody = bodyType === 'all' || vehicle.bodyType === bodyType;
         const matchesPrice = vehicle.price <= maxPrice;
         const matchesMileage = vehicle.mileage <= maxMileage;
-        const isNotSold = vehicle.status !== 'Sold';
+        // Robust check for Hidden status (Safe for case sensitivity)
+        const status = (vehicle.status || "").toLowerCase();
+        const isNotSold = status !== 'sold' && status !== 'hidden';
         return matchesMake && matchesBody && matchesPrice && matchesMileage && isNotSold;
     });
 

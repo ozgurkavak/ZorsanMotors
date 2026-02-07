@@ -10,7 +10,10 @@ import { VideoSection } from "@/components/home/VideoSection";
 
 export default function Home() {
   const { vehicles } = useVehicles();
-  const featuredCars = vehicles.slice(0, 4);
+  const featuredCars = vehicles.filter(v =>
+    (v.status || "").toLowerCase() !== 'sold' &&
+    (v.status || "").toLowerCase() !== 'hidden'
+  ).slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen">

@@ -75,6 +75,7 @@ export function FinanceStats() {
             case 'sold': return 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.4)]';
             case 'reserved': return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
             case 'pending': return 'bg-orange-500';
+            case 'hidden': return 'bg-gray-700 shadow-[0_0_8px_rgba(55,65,81,0.4)]';
             default: return 'bg-gray-400';
         }
     };

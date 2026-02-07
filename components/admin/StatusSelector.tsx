@@ -20,7 +20,7 @@ export function StatusSelector({ vehicle }: StatusSelectorProps) {
     const { updateVehicle } = useVehicles();
     const [loading, setLoading] = useState(false);
 
-    const statuses = ["Available", "Pending", "Sold", "Reserved"];
+    const statuses = ["Available", "Pending", "Sold", "Reserved", "Hidden"];
 
     const handleStatusChange = async (newStatus: string) => {
         if (newStatus === vehicle.status) return;
@@ -44,6 +44,8 @@ export function StatusSelector({ vehicle }: StatusSelectorProps) {
                 return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200/50 hover:bg-amber-200 dark:hover:bg-amber-500/30';
             case 'Reserved':
                 return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200/50 hover:bg-blue-200 dark:hover:bg-blue-500/30';
+            case 'Hidden':
+                return 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300/50 hover:bg-gray-300 dark:hover:bg-gray-600';
             default:
                 return 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
         }
