@@ -72,7 +72,7 @@ export function FinanceStats() {
     const getStatusDotColor = (status: string) => {
         switch (status.toLowerCase()) {
             case 'available': return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]';
-            case 'sold': return 'bg-slate-500';
+            case 'sold': return 'bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.4)]';
             case 'reserved': return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
             case 'pending': return 'bg-orange-500';
             default: return 'bg-gray-400';
