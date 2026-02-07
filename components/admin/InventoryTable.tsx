@@ -48,7 +48,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
     const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
     const [managingVehicle, setManagingVehicle] = useState<Vehicle | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [activeTab, setActiveTab] = useState("active");
+    const [activeTab, setActiveTab] = useState("Available");
 
     // Column Visibility Settings
     const allColumns = [
@@ -96,15 +96,20 @@ export function InventoryTable({ limit }: { limit?: number }) {
             return stock.includes(term) || title.includes(term);
         })
         .filter(v => {
-            if (limit) return v.status !== 'Sold'; // Widget shows only active
-            if (activeTab === 'sold') return v.status === 'Sold';
-            return v.status !== 'Sold'; // Active tab
+            if (limit) return v.status !== 'Sold' && v.status !== 'Hidden';
+
+            if (activeTab === 'All') return true;
+            // Case insensitive match just in case
+            return (v.status || 'Available') === activeTab;
         })
         .sort((a, b) => {
-            // Sort Sold items by Sold Date (desc) if available, else standard
-            if (activeTab === 'sold' && a.soldDate && b.soldDate) {
+            // Sort Sold items by Sold Date (desc)
+            if (activeTab === 'Sold' && a.soldDate && b.soldDate) {
                 return new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime();
             }
+            // Default sort: Created At desc (if available) or ID
+            // If vehicles array is already sorted by createdAt, we keep it.
+            // Usually useful to have newest first.
             return 0;
         })
         .slice(0, limit || vehicles.length);
@@ -168,16 +173,18 @@ export function InventoryTable({ limit }: { limit?: number }) {
 
     return (
         <div className="rounded-xl border bg-card shadow-sm">
-            <div className="p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h3 className="text-lg font-semibold">{limit ? "Recent Listings" : "Inventory Management"}</h3>
-                    <p className="text-sm text-muted-foreground">{limit ? "Latest additions to your fleet." : "Manage all vehicles."}</p>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                    {!limit && (
-                        <div className="flex items-center gap-2">
-                            {/* Export & Settings */}
-                            <div className="flex gap-2 mr-2">
+            <div className="p-6 border-b flex flex-col gap-6">
+                {/* Top Row: Title + Buttons --VS-- Search */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div>
+                            <h3 className="text-lg font-semibold">{limit ? "Recent Listings" : "Inventory Management"}</h3>
+                            <p className="text-sm text-muted-foreground">{limit ? "Latest additions to your fleet." : "Manage all vehicles."}</p>
+                        </div>
+
+                        {/* Moved Buttons Here */}
+                        {!limit && (
+                            <div className="flex items-center gap-2 ml-0 sm:ml-4">
                                 <Button variant="outline" size="sm" onClick={handlePrintRequest} title="Print Table">
                                     <Printer className="w-4 h-4" />
                                 </Button>
@@ -188,7 +195,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                             Export
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
+                                    <DropdownMenuContent align="start">
                                         <DropdownMenuLabel>Export Data</DropdownMenuLabel>
                                         <DropdownMenuItem onClick={() => handleExport('csv')}>Download CSV</DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => handleExport('excel')}>Download Excel</DropdownMenuItem>
@@ -203,7 +210,7 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                             Columns
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-[180px]">
+                                    <DropdownMenuContent align="start" className="w-[180px]">
                                         <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         {allColumns.map(col => (
@@ -218,25 +225,35 @@ export function InventoryTable({ limit }: { limit?: number }) {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
+                        )}
+                    </div>
 
-                            <Tabs value={activeTab} onValueChange={setActiveTab}>
-                                <TabsList>
-                                    <TabsTrigger value="active">Active</TabsTrigger>
-                                    <TabsTrigger value="sold">Sold</TabsTrigger>
-                                </TabsList>
-                            </Tabs>
+                    <div className="w-full sm:w-auto flex items-center gap-2">
+                        <div className="relative w-full sm:w-64">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search Stock # or Car..."
+                                className="pl-8"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
-                    )}
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search Stock # or Car..."
-                            className="pl-8"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
                     </div>
                 </div>
+
+                {/* Second Row: Tabs */}
+                {!limit && (
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                        <TabsList className="w-full sm:w-auto flex overflow-x-auto justify-start h-auto p-1 bg-muted/50">
+                            <TabsTrigger value="All">All</TabsTrigger>
+                            <TabsTrigger value="Available">Available</TabsTrigger>
+                            <TabsTrigger value="Sold">Sold</TabsTrigger>
+                            <TabsTrigger value="Reserved">Reserved</TabsTrigger>
+                            <TabsTrigger value="Pending">Pending</TabsTrigger>
+                            <TabsTrigger value="Hidden">Hidden</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                )}
             </div>
             <div className="relative w-full overflow-auto">
                 <Table>

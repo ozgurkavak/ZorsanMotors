@@ -15,11 +15,13 @@
 - [x] **Bug (Hesaplama):** Total Inventory Cost güncelleme hatası giderilecek.
 - [x] **Bug (Hesaplama):** Total Sales güncelleme hatası giderilecek.
 - [x] **Bug (Hesaplama):** Net Profit güncelleme hatası giderilecek.
+- [x] **Filter & Layout:** Admin panelindeki Inventory ve Finance tablolarına gelişmiş filtreleme (Available, Sold, Hidden vb.) ve buton düzeni güncellemesi yapıldı.
 
 ## 📊 3. Finansal Modül Geliştirmeleri
 - [x] **Dışa Aktarım:** Financials tablosuna "Yazdır", "PDF İndir", "Excel İndir" butonları eklenecek.
 - [x] **Kişiselleştirme:** Tablo sütunlarını gizleme/gösterme (Column Visibility) aracı düzenlenecek.
 - [ ] **Gelişmiş Yazdırma:** Admin'in seçtiği sütunlara ve o anki görünümüne (filtrelere) göre özelleştirilmiş dinamik yazdırma (WYSIWYG Print) özelliği eklenecek.
+- [ ] **Pending Workflow:** 'Pending' statüsündeki araçların satış sürecinin nasıl işleyeceğine dair detaylı akış (Deposit, Financing status vs.) planlanacak ve kodlanacak.
 
 ## 🔐 4. Admin Panel Güvenlik ve Yetkilendirme (Phase 3)
 - [ ] **Auth Sistemi:** Tek şifreli giriş yerine, çoklu kullanıcı (Username/Password) sistemine geçilecek.

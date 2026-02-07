@@ -276,19 +276,8 @@ export function FinanceTable() {
     return (
         <div className="rounded-xl border bg-card shadow-sm">
             <div className="p-6 border-b flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search Stock, Vehicle..."
-                            className="pl-8"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <div className="flex gap-2">
+                {/* Buttons Group (Left) */}
+                <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" size="sm" onClick={handlePrintRequest} title="Print Table">
                         <Printer className="w-4 h-4" />
                     </Button>
@@ -299,7 +288,7 @@ export function FinanceTable() {
                                 Export
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="start">
                             <DropdownMenuLabel>Export Data</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => handleExport('csv')}>Download CSV</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleExport('excel')}>Download Excel</DropdownMenuItem>
@@ -314,7 +303,7 @@ export function FinanceTable() {
                                 Columns
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-[180px]">
+                        <DropdownMenuContent align="start" className="w-[180px]">
                             <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {allColumns.map(col => (
@@ -328,6 +317,19 @@ export function FinanceTable() {
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
+                </div>
+
+                {/* Search Group (Right) */}
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search Stock, Vehicle..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
 
             </div>
