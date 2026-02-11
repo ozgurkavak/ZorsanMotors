@@ -1,148 +1,106 @@
-"use client";
 
-import { useVehicles } from "@/lib/vehicle-context";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Gauge, Fuel, Zap, CheckCircle2, ArrowLeft, CarFront } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { use, useState } from "react";
-import { CarfaxReportButton } from "@/components/inventory/CarfaxReportButton";
+import { CarDetailClient } from "@/components/inventory/CarDetailClient";
+import { supabase } from "@/lib/supabase";
+import { Vehicle } from "@/types";
 
-interface CarPageProps {
+// Force dynamic rendering since inventory changes
+export const dynamic = 'force-dynamic';
+
+interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-export default function CarPage({ params }: CarPageProps) {
-    const { id } = use(params);
-    const { vehicles } = useVehicles();
-    const vehicle = vehicles.find((v) => v.id === id);
+async function getVehicle(id: string): Promise<Vehicle | null> {
+    const { data: vehicle, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-
-    if (!vehicle) {
-        return <div className="p-8 text-center text-red-500">Vehicle not found (might be loading or persisted data issue).</div>;
+    if (error || !vehicle) {
+        return null;
     }
 
+    return vehicle as Vehicle;
+}
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { id } = await params;
+    const vehicle = await getVehicle(id);
 
-    const images = (vehicle.images && vehicle.images.length > 0) ? vehicle.images : [vehicle.image];
-    const activeImage = images[activeImageIndex] || vehicle.image;
+    if (!vehicle) {
+        return {
+            title: "Vehicle Not Found | ZorSan Motors",
+            description: "The requested vehicle could not be found in our inventory."
+        };
+    }
 
-    // Dynamic carfax link generator
-    const getCarfaxLink = (v: typeof vehicle) => {
-        if (v.carfaxUrl && (v.carfaxUrl.startsWith("http") || v.carfaxUrl.includes("carfax-sample"))) return v.carfaxUrl;
-        return `/carfax-report/${v.id}`;
+    const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} - $${vehicle.price.toLocaleString()} | ZorSan Motors`;
+    const description = `Check out this ${vehicle.year} ${vehicle.make} ${vehicle.model} with ${vehicle.mileage.toLocaleString()} miles. ${vehicle.exteriorColor || ''} exterior, ${vehicle.transmission} transmission. Available now at ZorSan Motors.`;
+    const imageUrl = vehicle.image || '/placeholder.png'; // Fallback image
+
+    return {
+        title: title,
+        description: description,
+        openGraph: {
+            title: title,
+            description: description,
+            images: [{ url: imageUrl }],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: [imageUrl],
+        }
+    };
+}
+
+export default async function CarPage({ params }: PageProps) {
+    const { id } = await params;
+    const vehicle = await getVehicle(id);
+
+    if (!vehicle) {
+        notFound();
+    }
+
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Vehicle',
+        name: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+        image: [vehicle.image || '/placeholder.png'],
+        description: `Check out this ${vehicle.year} ${vehicle.make} ${vehicle.model} with ${vehicle.mileage.toLocaleString()} miles. Available now at ZorSan Motors.`,
+        vehicleIdentificationNumber: vehicle.vin,
+        brand: {
+            '@type': 'Brand',
+            name: vehicle.make
+        },
+        model: vehicle.model,
+        vehicleModelDate: vehicle.year,
+        mileageFromOdometer: {
+            '@type': 'QuantitativeValue',
+            value: vehicle.mileage,
+            unitCode: 'SMI'
+        },
+        offers: {
+            '@type': 'Offer',
+            price: vehicle.price,
+            priceCurrency: 'USD',
+            availability: (vehicle.status || 'Available') === 'Sold' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+            itemCondition: 'https://schema.org/UsedCondition'
+        }
     };
 
     return (
-        <div className="container py-8">
-            <Button variant="ghost" asChild className="mb-4">
-                <Link href="/inventory"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Inventory</Link>
-            </Button>
-
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                {/* Image Section */}
-                <div className="space-y-4">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border bg-muted">
-                        <Image
-                            src={activeImage}
-                            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                        {images.map((img, i) => (
-                            <div
-                                key={i}
-                                className={`relative aspect-video overflow-hidden rounded-lg border bg-muted cursor-pointer transition-all ${activeImageIndex === i ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'}`}
-                                onClick={() => setActiveImageIndex(i)}
-                            >
-                                <Image
-                                    src={img}
-                                    alt="Thumbnail"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">{vehicle.condition}</Badge>
-                            <Badge variant="secondary">{vehicle.status || "Available"}</Badge>
-                        </div>
-                        <h1 className="text-3xl font-bold">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
-                        <p className="text-xl text-primary font-bold mt-2">${vehicle.price.toLocaleString()}</p>
-                    </div>
-
-                    <Separator />
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                            <Calendar className="h-5 w-5 text-primary" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Year</p>
-                                <p className="font-medium">{vehicle.year}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                            <Gauge className="h-5 w-5 text-primary" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Mileage</p>
-                                <p className="font-medium">{vehicle.mileage.toLocaleString()} mi</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                            <CarFront className="h-5 w-5 text-primary" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Body Style</p>
-                                <p className="font-medium">{vehicle.bodyType || "N/A"}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                            <Zap className="h-5 w-5 text-primary" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Transmission</p>
-                                <p className="font-medium">{vehicle.transmission}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-4 mt-6">
-                        <div className="flex justify-center sm:justify-start">
-                            <CarfaxReportButton vin={vehicle.vin} />
-                        </div>
-                        <Button size="lg" className="w-full" asChild>
-                            <Link href="/finance">Apply for Financing</Link>
-                        </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                        <h3 className="font-semibold">Vehicle Features</h3>
-                        {vehicle.features && vehicle.features.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {vehicle.features.map((feature, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> {feature}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground italic">No features listed.</p>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <CarDetailClient vehicle={vehicle} />
+        </>
     );
 }
