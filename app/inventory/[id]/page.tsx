@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { use, useState } from "react";
+import { CarfaxReportButton } from "@/components/inventory/CarfaxReportButton";
 
 interface CarPageProps {
     params: Promise<{ id: string }>;
@@ -117,7 +118,10 @@ export default function CarPage({ params }: CarPageProps) {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-4 mt-6">
+                        <div className="flex justify-center sm:justify-start">
+                            <CarfaxReportButton vin={vehicle.vin} />
+                        </div>
                         <Button size="lg" className="w-full" asChild>
                             <Link href="/finance">Apply for Financing</Link>
                         </Button>
