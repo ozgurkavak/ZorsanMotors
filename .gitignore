@@ -54,3 +54,20 @@ email_archive/
 ftp_server/
 processed_backups/
 SERVER_MANAGEMENT_PRIVATE.md
+
+# Local Operations & Scripts
+Baslat.bat
+download_sync.ps1
+dealercenter_logs.log
+inventory_MANUEL_*.csv
+scripts/analyze_prius_history_v2.py
+processed_backups/
+
+# Python Cache & Build
+__pycache__/
+*.pyc
+*.log
+
+# Future Local Tools Directory
+local_tools/
+scripts/local/
