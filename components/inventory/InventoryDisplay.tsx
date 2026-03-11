@@ -31,6 +31,7 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
     const handleColumnChange = (cols: 3 | 4 | 5) => {
         setColumns(cols);
         setCurrentPage(1);
+        setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 250);
     };
 
     const totalPages = Math.ceil(vehicles.length / itemsPerPage);
@@ -42,11 +43,17 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
     }, [currentPage, itemsPerPage, vehicles]);
 
     const handlePrevious = () => {
-        if (currentPage > 1) setCurrentPage(p => p - 1);
+        if (currentPage > 1) {
+            setCurrentPage(p => p - 1);
+            setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 250);
+        }
     };
 
     const handleNext = () => {
-        if (currentPage < totalPages) setCurrentPage(p => p + 1);
+        if (currentPage < totalPages) {
+            setCurrentPage(p => p + 1);
+            setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 250);
+        }
     };
 
     return (
