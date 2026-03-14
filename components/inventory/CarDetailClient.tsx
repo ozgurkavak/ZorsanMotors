@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ interface CarDetailClientProps {
 }
 
 export function CarDetailClient({ vehicle }: CarDetailClientProps) {
+    const router = useRouter();
     const [activeImageIndex, setActiveImageIndex] = useState(0);
 
     const images = (vehicle.images && vehicle.images.length > 0) ? vehicle.images : [vehicle.image];
@@ -22,8 +24,8 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
 
     return (
         <div className="container py-8">
-            <Button variant="ghost" asChild className="mb-4">
-                <Link href="/inventory"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Inventory</Link>
+            <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Inventory
             </Button>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

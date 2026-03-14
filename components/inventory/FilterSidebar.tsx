@@ -17,9 +17,10 @@ import { Separator } from "@/components/ui/separator";
 interface FilterSidebarProps {
     makes: string[];
     bodyTypes: string[];
+    onApply?: () => void;
 }
 
-export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
+export function FilterSidebar({ makes, bodyTypes, onApply }: FilterSidebarProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -42,6 +43,7 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
         if (maxMileage[0] < 500000) params.set("maxMileage", maxMileage[0].toString());
 
         router.push(`/inventory?${params.toString()}`);
+        if (onApply) onApply();
     };
 
     const handleReset = () => {
@@ -50,6 +52,7 @@ export function FilterSidebar({ makes, bodyTypes }: FilterSidebarProps) {
         setMaxPrice([100000]);
         setMaxMileage([500000]);
         router.push("/inventory");
+        if (onApply) onApply();
     };
 
     return (

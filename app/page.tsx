@@ -7,8 +7,6 @@ import { CarCard } from "@/components/inventory/CarCard";
 import { ArrowRight } from "lucide-react";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { VideoSection } from "@/components/home/VideoSection";
-import { CarfaxRatings } from "@/components/CarfaxRatings";
-
 export default function Home() {
   const { vehicles } = useVehicles();
   const featuredCars = vehicles.filter(v =>
@@ -48,14 +46,6 @@ export default function Home() {
 
       {/* Video / Why Choose Us Section */}
       <VideoSection />
-
-      {/* CARFAX Reviews Widget */}
-      <section className="py-12 bg-white">
-        <div className="container max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-          <CarfaxRatings />
-        </div>
-      </section>
     </div>
   );
 }

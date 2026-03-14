@@ -7,9 +7,10 @@ import { useVehicles } from "@/lib/vehicle-context";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SlidersHorizontal } from "lucide-react";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 function InventoryContent() {
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const searchParams = useSearchParams();
     const { vehicles } = useVehicles();
 
@@ -40,14 +41,18 @@ function InventoryContent() {
                     <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
                     <p className="text-muted-foreground">Find the perfect car for your journey.</p>
                 </div>
-                <Sheet>
+                <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
                     <SheetTrigger asChild>
                         <Button variant="outline" className="w-full">
                             <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left">
-                        <FilterSidebar makes={uniqueMakes} bodyTypes={uniqueBodyTypes} />
+                    <SheetContent side="left" className="pt-12">
+                        <FilterSidebar 
+                            makes={uniqueMakes} 
+                            bodyTypes={uniqueBodyTypes} 
+                            onApply={() => setIsMobileFilterOpen(false)} 
+                        />
                     </SheetContent>
                 </Sheet>
             </div>

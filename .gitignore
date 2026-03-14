@@ -71,3 +71,6 @@ __pycache__/
 # Future Local Tools Directory
 local_tools/
 scripts/local/
+
+# Core Project Documentation
+project_architecture/
