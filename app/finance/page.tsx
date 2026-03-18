@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Clock, CheckCircle2, ArrowRight } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "Financing | ZorSan Motors",
@@ -24,7 +24,7 @@ export default function FinancePage() {
                             Drive Your Dream Car Today
                         </h1>
                         <p className="text-xl text-muted-foreground leading-relaxed">
-                            We believe everyone deserves a great car. With our seamless, secure, and rapid credit approval process, getting behind the wheel has never been easier. All credit types are welcome!
+                            Please complete your secure credit application through our trusted financing partner below. It's fast, simple, and you'll get a decision in minutes.
                         </p>
                         
                         <div className="pt-8 fade-in">
@@ -44,61 +44,6 @@ export default function FinancePage() {
                 <div className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
             </section>
 
-            {/* Benefits Section */}
-            <section className="py-20 bg-background">
-                <div className="container max-w-7xl mx-auto px-4 sm:px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold tracking-tight">Why Finance With Us?</h2>
-                        <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-                            We partner with top lenders to provide you with the most competitive rates and terms available in the market.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Benefit 1 */}
-                        <div className="group p-8 rounded-2xl bg-card border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-5 transition-opacity duration-500">
-                                <Clock className="w-32 h-32" />
-                            </div>
-                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-                                <Clock className="h-6 w-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Lightning Fast Approval</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Don't wait for days. Fill out our simple online form and get a credit decision within minutes, ensuring a smooth and rapid purchasing process.
-                            </p>
-                        </div>
-
-                        {/* Benefit 2 */}
-                        <div className="group p-8 rounded-2xl bg-card border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-5 transition-opacity duration-500">
-                                <ShieldCheck className="w-32 h-32" />
-                            </div>
-                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-                                <ShieldCheck className="h-6 w-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">All Credit Types</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Good credit, bad credit, or no credit at all. We have established relationships with multiple financial institutions to find a plan that works for you.
-                            </p>
-                        </div>
-
-                        {/* Benefit 3 */}
-                        <div className="group p-8 rounded-2xl bg-card border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-5 transition-opacity duration-500">
-                                <CheckCircle2 className="w-32 h-32" />
-                            </div>
-                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-                                <CheckCircle2 className="h-6 w-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Flexible Terms</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                We work hard to secure aggressive financing terms for you. Pick the monthly payment schedule that best comfortably fits your budget and lifestyle.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 }
