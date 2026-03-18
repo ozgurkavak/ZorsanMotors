@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
 import { LayoutDashboard } from "lucide-react";
+import { MobileMenu } from "@/components/shared/MobileMenu";
 
 export async function Navbar() {
     const cookieStore = await cookies();
@@ -39,6 +40,7 @@ export async function Navbar() {
                     <Button size="sm" asChild>
                         <Link href="/inventory">Browse Cars</Link>
                     </Button>
+                    <MobileMenu isAdmin={isAdmin} />
                 </div>
             </div>
         </header>
