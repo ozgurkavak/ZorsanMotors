@@ -6,8 +6,8 @@ export function Footer() {
                     &copy; 2026 ZorSan Motors. All rights reserved.
                 </p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <a href="#" className="hover:underline">Privacy Policy</a>
-                    <a href="#" className="hover:underline">Terms of Service</a>
+                    <a href="/privacy-policy" className="hover:underline">Privacy Policy</a>
+                    <a href="/terms-of-service" className="hover:underline">Terms of Service</a>
                 </div>
             </div>
         </footer>

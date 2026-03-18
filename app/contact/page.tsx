@@ -133,6 +133,27 @@ export default function ContactPage() {
                                             required
                                         />
                                     </div>
+                                    
+                                    {/* Twilio SMS Compliance Checkboxes */}
+                                    <div className="space-y-4 pt-4 pb-2 border-t mt-6">
+                                        <h3 className="font-semibold text-sm">SMS & Text Messaging Consent</h3>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                            By checking the boxes below, you authorize <strong>ZorSan Motors</strong> to communicate with you via SMS/Text messages. Message and data rates may apply. Reply STOP to opt out or HELP for assistance.
+                                        </p>
+                                        <div className="flex items-start space-x-3">
+                                            <input type="checkbox" id="consent_marketing" name="consent_marketing" className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                            <Label htmlFor="consent_marketing" className="text-sm font-normal leading-relaxed cursor-pointer">
+                                                I consent to receive marketing text messages from ZorSan Motors.
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-start space-x-3">
+                                            <input type="checkbox" id="consent_info" name="consent_info" className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                            <Label htmlFor="consent_info" className="text-sm font-normal leading-relaxed cursor-pointer">
+                                                I consent to receive non-marketing/informational text messages from ZorSan Motors.
+                                            </Label>
+                                        </div>
+                                    </div>
+
                                     <Button className="w-full" size="lg" disabled={sending}>
                                         {sending ? "Sending Message..." : "Send Message"}
                                     </Button>

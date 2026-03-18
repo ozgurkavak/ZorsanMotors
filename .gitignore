@@ -74,3 +74,6 @@ scripts/local/
 
 # Core Project Documentation
 project_architecture/
+
+# Local Email Assets (Do not commit)
+dealercenter_mail/
