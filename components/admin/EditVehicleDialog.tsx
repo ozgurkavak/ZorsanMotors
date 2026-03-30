@@ -43,7 +43,7 @@ const vehicleSchema = z.object({
     price: z.string().min(1, "Price is required"),
     vin: z.string().min(17, "VIN must be 17 characters").max(17),
     mileage: z.string().min(1, "Mileage is required"),
-    status: z.enum(["Available", "Sold", "Reserved"]),
+    status: z.enum(["Available", "Sold", "Reserved", "Pending", "Hidden"]),
     bodyType: z.enum(["Sedan", "Hatchback", "Wagon", "SUV", "Truck", "Coupe", "Minivan", "Van"]).optional(),
     transmission: z.enum(["Automatic", "Manual", "CVT", "DCT"]).optional(),
     features: z.array(z.string()).optional(),
@@ -99,7 +99,7 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                 price: vehicle.price.toString(),
                 vin: vehicle.vin,
                 mileage: vehicle.mileage.toString(),
-                status: (vehicle.status as "Available" | "Sold" | "Reserved") || "Available",
+                status: (vehicle.status as "Available" | "Sold" | "Reserved" | "Pending" | "Hidden") || "Available",
                 bodyType: vehicle.bodyType as any,
                 transmission: vehicle.transmission as any || "Automatic",
                 features: vehicle.features || [],
@@ -181,6 +181,13 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
             };
 
             await updateVehicle(vehicle.id, updates);
+
+            // Log the manual update to sync_logs
+            await supabase.from('sync_logs').insert({
+                event_type: 'MANUAL_UPDATE',
+                message: `Manual Update: Vehicle ${vehicle.vin} was successfully updated via Admin Panel.`,
+                details: { vin: vehicle.vin, updates }
+            });
 
             // Cleanup previews
             newPreviews.forEach(url => URL.revokeObjectURL(url));
@@ -328,6 +335,8 @@ export function EditVehicleDialog({ vehicle, open, onOpenChange }: EditVehicleDi
                                                 <SelectItem value="Available">Available</SelectItem>
                                                 <SelectItem value="Reserved">Reserved</SelectItem>
                                                 <SelectItem value="Sold">Sold</SelectItem>
+                                                <SelectItem value="Pending">Pending</SelectItem>
+                                                <SelectItem value="Hidden">Hidden</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

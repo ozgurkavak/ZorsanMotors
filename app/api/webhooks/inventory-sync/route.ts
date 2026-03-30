@@ -71,27 +71,61 @@ export async function POST(request: Request) {
 
         console.log(`Received ${vehicles.length} vehicles for sync.`);
 
+        // Pre-fetch existing vehicles to safely handle status toggles for missing info
+        const incomingVins = vehicles.map((v: any) => v.vin);
+        const { data: existingVehicles } = await supabase
+            .from('vehicles')
+            .select('vin, status')
+            .in('vin', incomingVins);
+
+        const existingStatusMap = new Map();
+        if (existingVehicles) {
+            existingVehicles.forEach(ev => existingStatusMap.set(ev.vin, ev.status));
+        }
+
+        let autoHiddenVins: string[] = [];
+        let autoRestoredVins: string[] = [];
+
         // 3. Sync Logic (Upsert based on VIN)
-        const dbVehicles = vehicles.map((v: any) => ({
-            vin: v.vin,
-            stock_number: v.stockNumber, // Map camelCase to snake_case
-            year: v.year,
-            make: v.make,
-            model: v.model,
-            price: v.price,
-            mileage: v.mileage,
-            body_type: v.bodyType || "Other", // Default if missing
-            fuel_type: v.fuelType || "Gasoline", // Default if missing
-            transmission: v.transmission || "Automatic", // Default if missing
-            image_url: v.image || null,
-            images: v.images || [],
-            description: v.description || "",
-            // condition: v.mileage < 1000 ? "New" : "Used", // Removed to fix DB Schema Error
-            exterior_color: v.exteriorColor || "Unknown",
-            interior_color: v.interiorColor || "Unknown",
-            features: v.features || null,
-            updated_at: new Date().toISOString()
-        }));
+        const dbVehicles = vehicles.map((v: any) => {
+            const currentStatus = existingStatusMap.get(v.vin) || 'Available';
+            let newStatus = currentStatus;
+
+            // Automation: Toggle Hidden/Available based on missing info
+            if (currentStatus === 'Available' || currentStatus === 'Hidden') {
+                const missingInfo = (!v.image && (!v.images || v.images.length === 0)) || v.price <= 0;
+                
+                if (missingInfo && currentStatus !== 'Hidden') {
+                    newStatus = 'Hidden';
+                    autoHiddenVins.push(v.vin);
+                } else if (!missingInfo && currentStatus === 'Hidden') {
+                    newStatus = 'Available';
+                    autoRestoredVins.push(v.vin);
+                }
+            }
+
+            return {
+                vin: v.vin,
+                stock_number: v.stockNumber, // Map camelCase to snake_case
+                year: v.year,
+                make: v.make,
+                model: v.model,
+                price: v.price,
+                mileage: v.mileage,
+                body_type: v.bodyType || "Other", // Default if missing
+                fuel_type: v.fuelType || "Gasoline", // Default if missing
+                transmission: v.transmission || "Automatic", // Default if missing
+                image_url: v.image || null,
+                images: v.images || [],
+                description: v.description || "",
+                // condition: v.mileage < 1000 ? "New" : "Used", // Removed to fix DB Schema Error
+                exterior_color: v.exteriorColor || "Unknown",
+                interior_color: v.interiorColor || "Unknown",
+                features: v.features || null,
+                status: newStatus,
+                updated_at: new Date().toISOString()
+            };
+        });
 
         const { error: upsertError } = await supabase
             .from('vehicles')
@@ -141,7 +175,22 @@ export async function POST(request: Request) {
             console.warn("Skipping 'Sold' detection: Feed contains fewer than 5 vehicles. Potential feed error.");
         }
 
-        // 4. Log Success with Enhanced Details
+        // Log automated visibility changes
+        if (autoHiddenVins.length > 0) {
+            await supabase.from('sync_logs').insert({
+                event_type: 'MISSING_INFO_HIDDEN',
+                message: `Automated Action: ${autoHiddenVins.length} vehicles were hidden due to missing price or photos.`,
+                details: { affected_vins: autoHiddenVins }
+            });
+        }
+        if (autoRestoredVins.length > 0) {
+            await supabase.from('sync_logs').insert({
+                event_type: 'MISSING_INFO_RESTORED',
+                message: `Automated Action: ${autoRestoredVins.length} vehicles were restored to available status (price/photo updated).`,
+                details: { affected_vins: autoRestoredVins }
+            });
+        }
+
         const meta = body.meta || {}; // Get V6 meta stats
 
         await supabase.from('sync_logs').insert({
@@ -151,6 +200,8 @@ export async function POST(request: Request) {
                 processed_count: vehicles.length,
                 sold_count: soldCount,
                 upserted_count: dbVehicles.length,
+                hidden_count: autoHiddenVins.length,
+                restored_count: autoRestoredVins.length,
                 skipped_count: meta.skipped_count || 0,
                 skipped_details: meta.skipped_details || [],
             }
