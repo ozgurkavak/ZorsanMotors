@@ -1,6 +1,5 @@
-"use client";
-
-import { ShieldCheck, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 interface CarfaxReportButtonProps {
     vin: string;
@@ -12,28 +11,30 @@ export function CarfaxReportButton({ vin }: CarfaxReportButtonProps) {
     const carfaxUrl = `http://www.carfax.com/VehicleHistory/p/Report.cfx?partner=DVW_1&vin=${vin}`;
 
     return (
-        <a
-            href={carfaxUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full group"
-            title="View Free CARFAX® Vehicle History Report"
-        >
-            <div className="relative overflow-hidden flex items-center p-4 sm:p-5 w-full bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity duration-300 shadow-md hover:shadow-lg">
-                <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-background/20 text-primary-foreground shrink-0">
-                    <ShieldCheck className="w-6 h-6" />
+        <Button size="lg" className="w-full text-base font-semibold group h-[56px] shadow-lg" asChild>
+            <a 
+                href={carfaxUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center justify-center gap-2 sm:gap-3"
+                title="View Free CARFAX Report"
+            >
+                <span className="hidden sm:inline">Show Me The</span>
+                <span className="sm:hidden">View</span>
+                
+                {/* Clean, transparent CARFAX typography logo */}
+                <div className="relative w-[85px] h-[22px] sm:w-[100px] sm:h-[26px]">
+                    <Image
+                        src="https://www.carfax.com/wsc/img/carfax-logo.svg"
+                        alt="CARFAX"
+                        fill
+                        className="object-contain filter contrast-125"
+                        unoptimized
+                    />
                 </div>
                 
-                <div className="ml-4 flex-1 text-left relative z-10 transition-transform duration-300 group-hover:translate-x-1">
-                   <p className="font-semibold text-base sm:text-lg flex items-center gap-2">
-                        Get CARFAX® Report
-                        <ArrowUpRight className="w-4 h-4 opacity-70" />
-                   </p>
-                   <p className="opacity-80 text-xs sm:text-sm mt-0.5">
-                        Free vehicle history and detailed condition report.
-                   </p>
-                </div>
-            </div>
-        </a>
+                <span>Report</span>
+            </a>
+        </Button>
     );
 }
