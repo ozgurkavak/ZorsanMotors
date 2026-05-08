@@ -237,12 +237,18 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
                             }}
                         >
                             <motion.div
-                                drag
-                                dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }}
+                                drag={scale > 1}
+                                dragMomentum={false}
+                                dragConstraints={{ 
+                                    left: -(scale - 1) * 400, 
+                                    right: (scale - 1) * 400, 
+                                    top: -(scale - 1) * 400, 
+                                    bottom: (scale - 1) * 400 
+                                }}
                                 dragElastic={0.1}
                                 animate={{ scale }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="relative w-[90vw] h-[80vh] sm:h-[90vh] cursor-grab active:cursor-grabbing"
+                                className={`relative w-[90vw] h-[80vh] sm:h-[90vh] ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
                             >
                                 <Image
                                     src={activeImage}
