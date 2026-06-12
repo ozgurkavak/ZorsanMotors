@@ -10,7 +10,8 @@ import {
     Columns,
     ChevronLeft,
     ChevronRight,
-    LayoutTemplate
+    LayoutTemplate,
+    Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ interface InventoryDisplayProps {
 export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
     const [columns, setColumns] = useState<3 | 4 | 5>(3);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // "3x5, 4x5, 5x5" logic implies 5 rows
     const rowsPerPage = 5;
@@ -34,13 +36,24 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
         setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 250);
     };
 
-    const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+    const filteredVehicles = useMemo(() => {
+        if (!searchQuery.trim()) return vehicles;
+        const query = searchQuery.toLowerCase();
+        return vehicles.filter(v => 
+            v.make.toLowerCase().includes(query) ||
+            v.model.toLowerCase().includes(query) ||
+            v.year.toString().includes(query) ||
+            (v.trim && v.trim.toLowerCase().includes(query))
+        );
+    }, [vehicles, searchQuery]);
+
+    const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage);
 
     // Get current items
     const currentVehicles = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
-        return vehicles.slice(start, start + itemsPerPage);
-    }, [currentPage, itemsPerPage, vehicles]);
+        return filteredVehicles.slice(start, start + itemsPerPage);
+    }, [currentPage, itemsPerPage, filteredVehicles]);
 
     const handlePrevious = () => {
         if (currentPage > 1) {
@@ -60,8 +73,24 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
         <div className="space-y-6">
             {/* Header / Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/50 p-4 rounded-xl border shadow-sm backdrop-blur-sm">
-                <div className="text-sm font-medium text-muted-foreground">
-                    Showing <span className="text-foreground font-bold">{vehicles.length}</span> vehicles
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+                    <div className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                        Showing <span className="text-foreground font-bold">{filteredVehicles.length}</span> vehicles
+                    </div>
+                    
+                    <div className="relative w-full sm:max-w-xs">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <input
+                            type="text"
+                            placeholder="Search make, model, year..."
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-9"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -120,10 +149,10 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
                     </motion.div>
                 </AnimatePresence>
 
-                {vehicles.length === 0 && (
+                {filteredVehicles.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed rounded-xl">
                         <p className="text-xl font-semibold">No vehicles found</p>
-                        <p className="text-muted-foreground">Try adjusting your filters to see more results.</p>
+                        <p className="text-muted-foreground">Try adjusting your search or filters to see more results.</p>
                     </div>
                 )}
             </div>
