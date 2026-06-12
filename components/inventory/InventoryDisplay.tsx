@@ -71,34 +71,40 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
     return (
         <div className="space-y-6">
             {/* Header / Controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/50 p-4 rounded-xl border shadow-sm backdrop-blur-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-br from-card/90 to-card/50 p-5 rounded-2xl border border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md overflow-hidden">
+                {/* Decorative background glow & highlights */}
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 blur-xl pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
                     <div className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        Showing <span className="text-foreground font-bold">{filteredVehicles.length}</span> vehicles
+                        Showing <span className="text-foreground font-bold text-base">{filteredVehicles.length}</span> vehicles
                     </div>
                     
-                    <div className="relative w-full sm:max-w-xs">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <input
-                            type="text"
-                            placeholder="Search make, model, year..."
-                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-9"
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                        />
+                    <div className="relative w-full sm:max-w-xs rounded-xl bg-gradient-to-r from-primary/80 via-blue-400 to-primary/80 p-[3px] shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-shadow hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] group">
+                        <div className="relative w-full h-full bg-background/90 backdrop-blur-sm rounded-lg overflow-hidden">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search make, model, year..."
+                                className="flex h-10 w-full border-0 bg-transparent px-3 py-1 text-sm shadow-inner transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 pl-9"
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-muted-foreground mr-2">Grid Layout:</span>
-                    <div className="flex items-center bg-muted rounded-lg p-1">
+                <div className="relative z-10 flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground mr-2 uppercase tracking-wider">Layout</span>
+                    <div className="flex items-center bg-background/50 rounded-lg p-1 border border-border/50 shadow-inner">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className={cn("h-8 w-8 rounded-md transition-all", columns === 3 && "bg-background shadow-sm")}
+                            className={cn("h-8 w-8 rounded-md transition-all", columns === 3 && "bg-background shadow-md border border-border/50")}
                             onClick={() => handleColumnChange(3)}
                             title="3 Columns"
                         >
@@ -107,7 +113,7 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className={cn("h-8 w-8 rounded-md transition-all", columns === 4 && "bg-background shadow-sm")}
+                            className={cn("h-8 w-8 rounded-md transition-all", columns === 4 && "bg-background shadow-md border border-border/50")}
                             onClick={() => handleColumnChange(4)}
                             title="4 Columns"
                         >
@@ -116,7 +122,7 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className={cn("h-8 w-8 rounded-md transition-all", columns === 5 && "bg-background shadow-sm")}
+                            className={cn("h-8 w-8 rounded-md transition-all", columns === 5 && "bg-background shadow-md border border-border/50")}
                             onClick={() => handleColumnChange(5)}
                             title="5 Columns"
                         >
