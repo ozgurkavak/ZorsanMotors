@@ -42,8 +42,7 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
         return vehicles.filter(v => 
             v.make.toLowerCase().includes(query) ||
             v.model.toLowerCase().includes(query) ||
-            v.year.toString().includes(query) ||
-            (v.trim && v.trim.toLowerCase().includes(query))
+            v.year.toString().includes(query)
         );
     }, [vehicles, searchQuery]);
 
