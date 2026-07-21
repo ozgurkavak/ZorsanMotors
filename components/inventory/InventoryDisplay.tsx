@@ -40,9 +40,9 @@ export function InventoryDisplay({ vehicles }: InventoryDisplayProps) {
         if (!searchQuery.trim()) return vehicles;
         const query = searchQuery.toLowerCase();
         return vehicles.filter(v => 
-            v.make.toLowerCase().includes(query) ||
-            v.model.toLowerCase().includes(query) ||
-            v.year.toString().includes(query)
+            (v.make?.toLowerCase() || '').includes(query) ||
+            (v.model?.toLowerCase() || '').includes(query) ||
+            (v.year?.toString() || '').includes(query)
         );
     }, [vehicles, searchQuery]);
 
