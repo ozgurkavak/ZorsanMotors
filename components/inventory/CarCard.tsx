@@ -46,7 +46,7 @@ export function CarCard({ vehicle }: CarCardProps) {
                             </h3>
                         </div>
                         <p className="text-xl font-bold text-primary">
-                            ${vehicle.price.toLocaleString()}
+                            ${(vehicle.price || 0).toLocaleString()}
                         </p>
                     </div>
                 </CardHeader>
@@ -60,7 +60,7 @@ export function CarCard({ vehicle }: CarCardProps) {
                         </div>
                         <div className="flex items-center gap-2">
                             <Gauge className="h-4 w-4 text-primary" />
-                            <span>{vehicle.mileage.toLocaleString()} mi</span>
+                            <span>{(vehicle.mileage || 0).toLocaleString()} mi</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Fuel className="h-4 w-4 text-primary" />

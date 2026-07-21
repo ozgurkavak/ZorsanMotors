@@ -137,7 +137,7 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
                             <Badge variant="secondary">{vehicle.status || "Available"}</Badge>
                         </div>
                         <h1 className="text-3xl font-bold">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
-                        <p className="text-xl text-primary font-bold mt-2">${vehicle.price.toLocaleString()}</p>
+                        <p className="text-xl text-primary font-bold mt-2">${(vehicle.price || 0).toLocaleString()}</p>
                     </div>
 
                     <Separator />
@@ -154,7 +154,7 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
                             <Gauge className="h-5 w-5 text-primary" />
                             <div>
                                 <p className="text-xs text-muted-foreground">Mileage</p>
-                                <p className="font-medium">{vehicle.mileage.toLocaleString()} mi</p>
+                                <p className="font-medium">{(vehicle.mileage || 0).toLocaleString()} mi</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
