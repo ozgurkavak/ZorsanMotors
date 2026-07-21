@@ -30,7 +30,7 @@ function InventoryContent() {
         return matchesMake && matchesBody && matchesPrice && matchesMileage && isNotSold;
     });
 
-    const uniqueMakes = Array.from(new Set(vehicles.map((v) => v.make))).sort();
+    const uniqueMakes = Array.from(new Set(vehicles.map((v) => v.make).filter(Boolean) as string[])).sort();
     const uniqueBodyTypes = Array.from(new Set(vehicles.map((v) => v.bodyType).filter(Boolean) as string[])).sort();
 
     return (
