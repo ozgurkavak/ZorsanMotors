@@ -182,6 +182,15 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
                         </Button>
                     </div>
 
+                    {vehicle.description && (
+                        <div className="space-y-2 pt-4">
+                            <h3 className="font-semibold">Description</h3>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                                {vehicle.description}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="space-y-2">
                         <h3 className="font-semibold">Vehicle Features</h3>
                         {vehicle.features && vehicle.features.length > 0 ? (

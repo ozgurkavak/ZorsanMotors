@@ -102,6 +102,10 @@ export async function POST(request: Request) {
                     newStatus = 'Available';
                     autoRestoredVins.push(v.vin);
                 }
+            } else if (currentStatus === 'Sold') {
+                // If it was marked as Sold but is now back in the active inventory feed, Relist it.
+                newStatus = 'Available';
+                autoRestoredVins.push(v.vin);
             }
 
             return {
