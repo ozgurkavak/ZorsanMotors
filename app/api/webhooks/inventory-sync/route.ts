@@ -22,8 +22,21 @@ export async function POST(request: Request) {
         // --- HEARTBEAT CHECK ---
         if (body.type === 'HEARTBEAT') {
             const { error } = await supabase.from('sync_heartbeats').insert({ status: 'ALIVE' });
+            
+            // Automated Database Cleanup (Garbage Collection)
+            try {
+                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                
+                // Delete old logs (30 days) and heartbeats (7 days)
+                await supabase.from('sync_logs').delete().lt('created_at', thirtyDaysAgo);
+                await supabase.from('sync_heartbeats').delete().lt('created_at', sevenDaysAgo);
+            } catch (cleanupError) {
+                console.error("Database Cleanup Error:", cleanupError);
+            }
+
             if (error) console.error("Heartbeat error:", error);
-            return NextResponse.json({ success: true, message: 'Heartbeat received' });
+            return NextResponse.json({ success: true, message: 'Heartbeat & Cleanup processed' });
         }
 
         // --- STATUS UPDATE (V7 Feature) ---
