@@ -14,14 +14,14 @@ export default function PrivacyPolicyPage() {
                 <section>
                     <h2 className="text-2xl font-bold text-foreground mb-4">1. Information We Collect</h2>
                     <p>
-                        At ZorSan Motors, we collect information you provide directly to us when you request information, apply for financing, or communicate with us. This personal information (PII) may include your name, email address, phone number, and physical address.
+                        At ZorSan Motors, we collect information you provide directly to us when you request information or communicate with us. This personal information (PII) may include your name, email address, phone number, and physical address.
                     </p>
                 </section>
 
                 <section>
                     <h2 className="text-2xl font-bold text-foreground mb-4">2. How We Use Your Information</h2>
                     <p>
-                        We use the information we collect to provide, maintain, and improve our services. This includes communicating with you about your inquiries, sending you informational or marketing SMS messages (if you have opted-in), and fulfilling your vehicle purchase or financing requests.
+                        We use the information we collect to provide, maintain, and improve our services. This includes communicating with you about your inquiries, sending you informational or marketing SMS messages (if you have opted-in), and fulfilling your vehicle purchase requests.
                     </p>
                 </section>
 

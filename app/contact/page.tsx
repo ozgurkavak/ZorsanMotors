@@ -36,7 +36,7 @@ export default function ContactPage() {
                     <div>
                         <h1 className="text-4xl font-extrabold tracking-tight">Contact Us</h1>
                         <p className="text-muted-foreground mt-4 text-lg">
-                            Have questions about a vehicle or need help with financing?
+                            Have questions about a vehicle?
                             Visit our showroom or get in touch with our team today.
                         </p>
                     </div>

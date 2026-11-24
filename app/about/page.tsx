@@ -13,8 +13,7 @@ export default function AboutPage() {
                         At ZorSan Motors, we believe buying a car should be exciting, transparent, and fair.
                         We have helped thousands of families find their perfect vehicle.
                         We believe that buying a used car should be an exciting and
-                        stress-free experience, which is why we meticulously inspect every vehicle and offer tailored financing
-                        solutions for every credit history.
+                        stress-free experience, which is why we meticulously inspect every vehicle.
                     </p>
                 </section>
             </div>

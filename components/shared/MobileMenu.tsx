@@ -29,7 +29,6 @@ export function MobileMenu({ isAdmin }: MobileMenuProps) {
                 
                 <nav className="flex flex-col gap-6 text-lg font-medium">
                     <Link href="/inventory" onClick={() => setOpen(false)} className="transition-colors hover:text-primary">Inventory</Link>
-                    <Link href="/finance" onClick={() => setOpen(false)} className="transition-colors hover:text-primary">Financing</Link>
                     <Link href="/about" onClick={() => setOpen(false)} className="transition-colors hover:text-primary">About Us</Link>
                     <Link href="/contact" onClick={() => setOpen(false)} className="transition-colors hover:text-primary">Contact</Link>
                 </nav>

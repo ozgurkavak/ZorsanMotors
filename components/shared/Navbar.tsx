@@ -19,9 +19,6 @@ export async function Navbar() {
                     <Link href="/inventory" className="transition-colors hover:text-primary">
                         Inventory
                     </Link>
-                    <Link href="/finance" className="transition-colors hover:text-primary">
-                        Financing
-                    </Link>
                     <Link href="/about" className="transition-colors hover:text-primary">
                         About Us
                     </Link>

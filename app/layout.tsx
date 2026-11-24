@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: "ZorSan Motors | Affordable & Reliable Used Cars",
     template: "%s | ZorSan Motors",
   },
-  description: "Find your dream car at ZorSan Motors. Quality used vehicles, certified pre-owned, and flexible financing options.",
+  description: "Find your dream car at ZorSan Motors. Quality used vehicles and certified pre-owned options.",
   icons: {
     icon: '/logo3.png',
   },

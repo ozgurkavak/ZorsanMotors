@@ -177,9 +177,6 @@ export function CarDetailClient({ vehicle }: CarDetailClientProps) {
                         <div className="flex justify-center sm:justify-start">
                             <CarfaxReportButton vin={vehicle.vin} />
                         </div>
-                        <Button size="lg" className="w-full" asChild>
-                            <Link href="/finance">Apply for Financing</Link>
-                        </Button>
                     </div>
 
                     {vehicle.description && (
